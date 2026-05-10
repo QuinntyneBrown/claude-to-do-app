@@ -1,7 +1,7 @@
 # Tickbox backend — implementation plan (BP1)
 
-Author: `claude@M5` (BP1)
-Status: draft, awaiting BP2 evaluation
+Author: `claude@M5` (BP1, BP2)
+Status: approved (BP2 pass 2 clean)
 Inputs: `docs/requirements.md` (approved), `backend/` MVP (accepted), `dotnet-angular-authenticated-full-stack-workflow.html` Implementation Guidance.
 
 This plan is the authoritative source for what backend tasks BT1 will slice. Every plan item below maps to one or more guidance bullets and to one or more `REQ-*` requirements; every backend-relevant requirement appears here.
@@ -39,8 +39,8 @@ All entities live in `Tickbox.Domain`; one type per file. The `AppDbContext` (in
 
 | Entity                  | Purpose                                                                                                  | Requirements                                                                                  |
 |-------------------------|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| `User`                  | Account holder. `Email`, `DisplayName`, `PasswordHash`, `CreatedAt`. Unique index on `Email`.            | REQ-AUTH-1, REQ-AUTH-2, REQ-AUTH-7, REQ-ACCT-1                                                |
-| `User` (extended)       | Add `PendingEmail`, `PendingEmailToken`, `PendingEmailExpiresAt` for email re-verification.              | REQ-ACCT-2 AC2/AC3                                                                            |
+| `User`                  | Account holder. `Email`, `DisplayName`, `PasswordHash` (**nullable** — OIDC-only accounts have no local password), `CreatedAt`. Unique index on `Email`. | REQ-AUTH-1, REQ-AUTH-2, REQ-AUTH-3, REQ-AUTH-7, REQ-ACCT-1            |
+| `User` (extended)       | Add `PendingEmail`, `PendingEmailTokenHash` (sha256), `PendingEmailExpiresAt` for email re-verification. The plaintext token is sent in the verification email and never persisted. | REQ-ACCT-2 AC2/AC3                              |
 | `Todo`                  | Owned to-do. `Id`, `UserId`, `Title`, `Status`, `Notes`, `DueDate`, `CreatedAt`, `CompletedAt`.          | REQ-TODO-1, REQ-TODO-2, REQ-TODO-3, REQ-TODO-4, REQ-TODO-5, REQ-TODO-6, REQ-TODO-7            |
 | `TodoStatus` enum       | `Incomplete`, `Complete`. No third value. Persisted as `int` via `HasConversion<int>()`.                 | REQ-TODO-1                                                                                    |
 | `TodoActivityEntry`     | One row per lifecycle event (`Created`, `MarkedComplete`). `TodoId`, `Kind`, `OccurredAt`.               | REQ-TODO-8                                                                                    |
@@ -71,7 +71,8 @@ Every command and query lives under `Tickbox.Application/<Feature>/<UseCase>/`, 
 | Local sign-in                    | `SignInUserCommand` *(extend)*   | `SignInUserResult`                   | REQ-AUTH-2, REQ-AUTH-7, REQ-NFR-4                     | Extend: query `SignInAttempt` for lockout (5 fails / 15 min); on failure write `SignInFailed`; on lock write `SignInLocked`. |
 | Begin OIDC                       | `BeginOidcSignInQuery`           | `BeginOidcSignInResult` (auth URL + state) | REQ-AUTH-3                                       | Generates code verifier/challenge; persists `state` server-side keyed by anti-forgery cookie.         |
 | Complete OIDC                    | `CompleteOidcSignInCommand`      | `SignInUserResult`                   | REQ-AUTH-3                                            | Exchanges code with IdP via `IOidcClient`; provisions `User` on first sign-in; issues app JWT.         |
-| Sign out                         | `SignOutCommand`                 | (no body)                            | REQ-AUTH-5                                            | Revokes the caller's `RefreshToken`.                                                                   |
+| Refresh access token             | `RefreshAccessTokenCommand`      | `SignInUserResult`                   | REQ-AUTH-2, REQ-AUTH-5, REQ-AUTH-6, REQ-NFR-6         | Reads the refresh token from the HttpOnly cookie. Hashes it and looks up the `RefreshToken` row by hash; rejects if revoked, expired, or unknown. Rotates it: marks the old `RefreshToken.RevokedAt`, inserts a new `RefreshToken`, sets a new HttpOnly `Set-Cookie`. Issues a fresh access JWT. |
+| Sign out                         | `SignOutCommand`                 | (no body)                            | REQ-AUTH-5                                            | Revokes the caller's `RefreshToken` (sets `RevokedAt`). Clears the refresh-token cookie via `Set-Cookie` with `Max-Age=0`. |
 | Request password reset           | `RequestPasswordResetCommand`    | (no body — always 202)               | REQ-AUTH-4 AC1, REQ-NFR-4                             | Always 202 (no enumeration). Writes `PasswordResetToken` if account exists; emails via `IEmailService` (no-op). |
 | Complete password reset          | `CompletePasswordResetCommand`   | `SignInUserResult`                   | REQ-AUTH-4 AC2/AC3, REQ-AUTH-7, REQ-NFR-4             | Validates unexpired/unconsumed token; updates `PasswordHash`; revokes all `RefreshToken`s; logs audit. |
 
@@ -141,6 +142,7 @@ Three controllers in `Tickbox.Api.Controllers`. Each controller method delegates
 | POST   | `/sign-in`                     | ✓          | `SignInUserCommand`                | `SignInUserResult`     | REQ-AUTH-2        |
 | GET    | `/oidc/authorize`              | ✓          | `BeginOidcSignInQuery`             | redirect URL + state   | REQ-AUTH-3        |
 | POST   | `/oidc/callback`               | ✓          | `CompleteOidcSignInCommand`        | `SignInUserResult`     | REQ-AUTH-3        |
+| POST   | `/refresh`                     | ✓          | `RefreshAccessTokenCommand`        | `SignInUserResult`     | REQ-AUTH-2, REQ-AUTH-5, REQ-NFR-6 |
 | POST   | `/sign-out`                    |            | `SignOutCommand`                   | 204                    | REQ-AUTH-5        |
 | POST   | `/password-reset/request`      | ✓          | `RequestPasswordResetCommand`      | 202                    | REQ-AUTH-4 AC1    |
 | POST   | `/password-reset/complete`     | ✓          | `CompletePasswordResetCommand`     | `SignInUserResult`     | REQ-AUTH-4 AC2/3  |
@@ -181,6 +183,7 @@ Maps to: Backend §"ASP.NET Core Controllers for HTTP endpoints", Validation §"
 1. **Register.** `POST /api/auth/register` → `RegisterUserCommand` → handler hashes password (bcrypt, work factor 12), inserts `User`, attaches the `User` role via `UserRole`, issues access JWT and refresh token. Audit `SignInFailed` is NOT written on register.
 2. **Sign-in.** `POST /api/auth/sign-in` → handler:
    - Reads `SignInAttempt` rows for this email in the last 15 minutes. If 5+ failed, return 401 + write `SignInLocked` audit. Generic message ("Incorrect email or password.").
+   - Look up the `User` by email. If not found, **OR** if `PasswordHash` is `null` (OIDC-only account), return the same 401 generic + write `SignInFailed`. Never reveal that an account exists but cannot use local sign-in.
    - Else verify password. On success: write `SignInAttempt { Succeeded = true }`, issue access + refresh tokens.
    - On failure: write `SignInAttempt { Succeeded = false }`, write `SignInFailed` audit, return 401 generic.
 3. **Token shape.** Access JWT (HS256, 15-minute lifetime, claims: `sub`, `email`, `display_name`, `role`, `jti`). Refresh token (opaque, 14-day lifetime, hashed in `RefreshToken` table).
@@ -211,6 +214,10 @@ Maps to: Backend §"ASP.NET Core Controllers for HTTP endpoints", Validation §"
 
 Already wired in `Program.cs` MVP: `ValidateIssuer`, `ValidateAudience`, `ValidateLifetime`, `ValidateIssuerSigningKey`, 30-second `ClockSkew`. No change needed — the implementation slices add audit logging and `[Authorize(Roles="User")]` annotations only.
 
+### 6.5 Request-context abstraction (`IRequestContext`)
+
+`SignInAttempt` rows and `SecurityAuditEvent` rows store the caller's IP address. Handlers in `Tickbox.Application` cannot reach `HttpContext`, so an `IRequestContext` interface in the Application layer exposes `IPAddress? RemoteIp` and `string? UserAgent`. The Api layer implements it (`Tickbox.Api.RequestContext`) by reading `IHttpContextAccessor`. Same shape and lifetime as the existing `ICurrentUserService`. This is the only new infrastructure abstraction the auth slices add over the MVP.
+
 Maps to: Auth §"PKCE-based OAuth 2.0 / OIDC", §"Local username + password", §"Salted hashes from a modern password-hashing function", §"JWTs validated on every request", §"Repeated failed sign-ins are rate-limited", §"Full user management", §"RBAC".
 
 ---
@@ -222,7 +229,7 @@ Each migration is its own slice; they ship in the order below. Slice naming: `<N
 | #   | Migration                          | Adds                                                                                          | Slice that introduces it             |
 |-----|------------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------|
 | 001 | `InitialCreate`                    | `Users`, `Todos`. **Already shipped in MB1.**                                                 | (MB1)                                |
-| 002 | `AddRolesAndUserRoles`             | `Roles`, `UserRoles`; seed `User` role; assign role to existing users.                        | RBAC slice                           |
+| 002 | `AddRolesAndUserRoles`             | `Roles`, `UserRoles`; seed `User` role; assign role to existing users. Makes `Users.PasswordHash` nullable so OIDC-only accounts can be provisioned. | RBAC slice |
 | 003 | `AddSignInAttemptsAndAuditEvents`  | `SignInAttempts`, `SecurityAuditEvents` + `SecurityAuditKind` int enum.                       | Sign-in lockout + audit slice        |
 | 004 | `AddRefreshTokens`                 | `RefreshTokens` table; `RevokedAt` nullable.                                                  | Token refresh / sign-out slice       |
 | 005 | `AddPasswordResetTokens`           | `PasswordResetTokens` table.                                                                  | Password reset slice                 |
@@ -263,7 +270,7 @@ Every backend-relevant requirement from `docs/requirements.md` maps to at least 
 | REQ-AUTH-2    | §3.1 `SignInUserCommand` · §4 · §5 · §6.1 (lockout + audit) · §7 #003                                          |
 | REQ-AUTH-3    | §3.1 `BeginOidcSignInQuery`/`CompleteOidcSignInCommand` · §5 · §6.2 · §8 (no no-op; env-toggled real)          |
 | REQ-AUTH-4    | §3.1 `RequestPasswordResetCommand`/`CompletePasswordResetCommand` · §4 · §5 · §6.1 · §7 #005 · §8 (email)      |
-| REQ-AUTH-5    | §3.1 `SignOutCommand` · §5 · §6.1 · §7 #004                                                                    |
+| REQ-AUTH-5    | §3.1 `SignOutCommand`, `RefreshAccessTokenCommand` · §5 · §6.1 · §7 #004                                       |
 | REQ-AUTH-6    | §6.4 (already wired in MB1; no change)                                                                         |
 | REQ-AUTH-7    | §4 (every password validator) · §6.1                                                                           |
 | REQ-TODO-1    | §2 `TodoStatus` enum · §4 `ToggleTodoStatusCommandValidator` · §3.3                                            |
@@ -284,7 +291,7 @@ Every backend-relevant requirement from `docs/requirements.md` maps to at least 
 | REQ-NFR-3     | §6.1 (bcrypt work factor 12; already in MB1).                                                                  |
 | REQ-NFR-4     | §2 `SecurityAuditEvent` · §6.1 (lockout, password change, password reset, account deletion all write events). |
 | REQ-NFR-5     | §3.3 every Todo handler scopes by `_currentUser.UserId`; §3.2 every Account handler reads/writes the caller only. |
-| REQ-NFR-6     | §6.1 refresh tokens are HttpOnly Secure cookie (frontend), hashed in DB. Access JWT is in-memory at the client (frontend concern; backend just sets `Set-Cookie` for refresh tokens with `HttpOnly; Secure; SameSite=Strict`). |
+| REQ-NFR-6     | §3.1 `RefreshAccessTokenCommand` · §6.1: refresh tokens delivered via `Set-Cookie: HttpOnly; Secure; SameSite=Strict; Path=/api/auth`. Stored as sha256 hashes in `RefreshToken` table (never plaintext). Access JWT is in-memory at the client (frontend concern). |
 | REQ-NFR-8     | Build cleanliness inherited from MB1; new slices keep `dotnet build -warnaserror` 0/0.                        |
 
 ---
@@ -300,6 +307,7 @@ Sanity check: every plan item references at least one rule from the Backend / Va
 - §4 validators → Validation §"FluentValidation", §"One AbstractValidator per command", §"register validators by assembly scanning", §"HTTP request DTOs ... no validation attributes".
 - §5 controllers → Backend §"ASP.NET Core Controllers for HTTP endpoints (no minimal APIs)".
 - §6 auth → Auth §"PKCE-based OAuth 2.0 / OIDC", §"Local username + password", §"Salted hashes", §"JWTs validated on every request", §"Repeated failed sign-ins are rate-limited", §"Full user management", §"RBAC".
+- §6.5 `IRequestContext` → not speculative: needed by the lockout check (per-IP attempt cluster) and by every audit-log write (REQ-NFR-4 records the IP per event). Same SOLID justification pattern as `ICurrentUserService` in MB1.
 - §7 migrations → Backend §"Entity Framework Core".
 - §8 deferred → General §"optional integrations explicitly deferred ... no-op service that logs the intended action".
 
