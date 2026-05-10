@@ -104,7 +104,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** `TodoDetailPage.ts`.
   - **Specs:** `todo-create.spec.ts` (`FAB_to_detail_in_create_mode_then_save_returns_to_list`); `todo-edit.spec.ts` (`Open_detail_then_save_persists_new_fields`, `Past_due_date_inline_error`); `todo-toggle.spec.ts` (detail-side) (`Detail_chip_set_toggles_status_and_writes_activity_strip_entry`); `todo-delete.spec.ts` (`Delete_button_opens_confirm_dialog_then_removes_from_list`).
 
-### F-007 — Profile page core (view + display name + change password + sign-out)
+### F-007 — Profile page core (view + display name + change password + sign-out) — **done** (see `docs/evaluations/FI1-F007.md`)
 
 - **Implements:** REQ-ACCT-1, REQ-ACCT-2 AC1, REQ-ACCT-3, REQ-AUTH-5. Mock: `mocks/profile.html` (excluding email-change banner + delete-account block).
 - **Depends on:** F-005 (`AppShellComponent`).
