@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig } from './api-config';
 import { IAccountService } from './account.service.contract';
-import { ChangePasswordRequest, MyProfile, UpdateDisplayNameRequest } from './my-profile';
+import { ChangePasswordRequest, ConfirmEmailChangeRequest, MyProfile, RequestEmailChangeRequest, UpdateDisplayNameRequest } from './my-profile';
 
 @Injectable()
 export class AccountService implements IAccountService {
@@ -22,5 +22,17 @@ export class AccountService implements IAccountService {
 
   changePassword(request: ChangePasswordRequest): Observable<void> {
     return this.http.put<void>(`${this.config.baseUrl}/api/account/password`, request, { withCredentials: true });
+  }
+
+  requestEmailChange(request: RequestEmailChangeRequest): Observable<MyProfile> {
+    return this.http.post<MyProfile>(`${this.config.baseUrl}/api/account/email-change/request`, request);
+  }
+
+  confirmEmailChange(request: ConfirmEmailChangeRequest): Observable<MyProfile> {
+    return this.http.post<MyProfile>(`${this.config.baseUrl}/api/account/email-change/confirm`, request);
+  }
+
+  cancelEmailChange(): Observable<MyProfile> {
+    return this.http.delete<MyProfile>(`${this.config.baseUrl}/api/account/email-change`);
   }
 }

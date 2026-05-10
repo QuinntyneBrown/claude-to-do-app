@@ -1,0 +1,37 @@
+:host { display: block; }
+
+.email-change-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.email-change-banner__icon {
+  color: var(--mat-sys-on-secondary-container);
+  flex-shrink: 0;
+}
+
+.email-change-banner__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-change-banner__title {
+  font: var(--mat-sys-title-small);
+  margin: 0;
+}
+
+.email-change-banner__pending {
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+}
+
+.email-change-banner__cancel {
+  flex-shrink: 0;
+}

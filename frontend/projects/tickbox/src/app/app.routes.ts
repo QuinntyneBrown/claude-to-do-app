@@ -43,5 +43,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./profile/profile-page.component').then(m => m.ProfilePageComponent)
   },
+  {
+    path: 'email-change/confirm',
+    loadComponent: () => import('./email-change/confirm-email-change-page.component').then(m => m.ConfirmEmailChangePageComponent)
+  },
   { path: '**', redirectTo: 'todos' }
 ];

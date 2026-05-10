@@ -10,3 +10,5 @@ export * from './lib/todo-edit-form.component';
 export * from './lib/profile-summary.component';
 export * from './lib/display-name-edit.component';
 export * from './lib/change-password-form.component';
+export * from './lib/email-change-form.component';
+export * from './lib/email-change-banner.component';

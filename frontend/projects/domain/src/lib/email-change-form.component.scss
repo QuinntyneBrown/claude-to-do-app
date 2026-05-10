@@ -1,0 +1,14 @@
+:host { display: block; }
+
+.email-change-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.email-change-form__field { width: 100%; }
+
+.email-change-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}

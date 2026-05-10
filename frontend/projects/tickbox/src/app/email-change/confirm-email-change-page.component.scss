@@ -1,0 +1,17 @@
+:host { display: block; }
+
+.confirm-email-change-page {
+  max-width: 480px;
+  margin: 64px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 24px;
+  align-items: flex-start;
+}
+
+.confirm-email-change-page__status {
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface);
+  margin: 0;
+}

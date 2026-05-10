@@ -1,0 +1,17 @@
+<div class="confirm-email-change-page">
+  @if (status() === 'pending') {
+    <p class="confirm-email-change-page__status" data-testid="confirm-email-change-status">
+      Confirming your new email…
+    </p>
+  }
+  @if (status() === 'error') {
+    <tb-error-banner [message]="error()" testId="confirm-email-change-error"></tb-error-banner>
+    <a
+      mat-flat-button
+      color="primary"
+      routerLink="/sign-in"
+      data-testid="confirm-email-change-sign-in-link">
+      Back to sign in
+    </a>
+  }
+</div>

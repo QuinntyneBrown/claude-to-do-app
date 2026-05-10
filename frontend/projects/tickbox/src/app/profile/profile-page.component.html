@@ -1,6 +1,13 @@
 <tb-app-shell title="Profile" [navItems]="navItems">
   @if (profile(); as p) {
     <div class="profile-page">
+      @if (p.pendingEmail !== null) {
+        <tb-email-change-banner
+          [pendingEmail]="p.pendingEmail"
+          (cancelled)="onProfileChanged($event)">
+        </tb-email-change-banner>
+      }
+
       <section class="profile-page__section">
         <h2 class="profile-page__heading">Account</h2>
         <tb-profile-summary [profile]="p"></tb-profile-summary>
@@ -10,8 +17,13 @@
         <h2 class="profile-page__heading">Display name</h2>
         <tb-display-name-edit
           [currentName]="p.displayName"
-          (updated)="onDisplayNameUpdated($event)">
+          (updated)="onProfileChanged($event)">
         </tb-display-name-edit>
+      </section>
+
+      <section class="profile-page__section">
+        <h2 class="profile-page__heading">Email address</h2>
+        <tb-email-change-form (requested)="onProfileChanged($event)"></tb-email-change-form>
       </section>
 
       <section class="profile-page__section">

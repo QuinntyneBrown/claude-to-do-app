@@ -4,7 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { ACCOUNT_SERVICE, AUTH_SERVICE, IAccountService, IAuthService, MyProfile } from 'api';
 import { AppShellComponent, AppShellNavItem } from 'components';
-import { ChangePasswordFormComponent, DisplayNameEditComponent, ProfileSummaryComponent } from 'domain';
+import {
+  ChangePasswordFormComponent,
+  DisplayNameEditComponent,
+  EmailChangeBannerComponent,
+  EmailChangeFormComponent,
+  ProfileSummaryComponent
+} from 'domain';
 import { AuthStateService } from '../auth/auth-state.service';
 
 @Component({
@@ -16,7 +22,9 @@ import { AuthStateService } from '../auth/auth-state.service';
     AppShellComponent,
     ProfileSummaryComponent,
     DisplayNameEditComponent,
-    ChangePasswordFormComponent
+    ChangePasswordFormComponent,
+    EmailChangeFormComponent,
+    EmailChangeBannerComponent
   ],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
@@ -43,7 +51,7 @@ export class ProfilePageComponent implements OnInit {
     });
   }
 
-  protected onDisplayNameUpdated(profile: MyProfile): void {
+  protected onProfileChanged(profile: MyProfile): void {
     this.profile.set(profile);
   }
 

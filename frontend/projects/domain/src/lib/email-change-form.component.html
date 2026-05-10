@@ -1,0 +1,25 @@
+<form class="email-change-form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline" class="email-change-form__field">
+    <mat-label>New email address</mat-label>
+    <input
+      matInput
+      type="email"
+      name="newEmail"
+      autocomplete="email"
+      data-testid="email-change-input"
+      [(ngModel)]="newEmail" />
+  </mat-form-field>
+
+  <tb-error-banner [message]="error()" testId="email-change-error"></tb-error-banner>
+
+  <div class="email-change-form__actions">
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      data-testid="email-change-submit"
+      [disabled]="submitting()">
+      {{ submitting() ? 'Sending…' : 'Send confirmation' }}
+    </button>
+  </div>
+</form>

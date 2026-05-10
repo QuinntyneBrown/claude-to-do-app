@@ -1,0 +1,18 @@
+<div class="email-change-banner" data-testid="email-change-banner">
+  <mat-icon class="email-change-banner__icon">mark_email_unread</mat-icon>
+  <div class="email-change-banner__body">
+    <p class="email-change-banner__title">Confirm your new email</p>
+    <p class="email-change-banner__pending" data-testid="email-change-banner-pending">
+      We sent a link to <strong>{{ pendingEmail }}</strong>. Click it to finish the change.
+    </p>
+  </div>
+  <button
+    mat-stroked-button
+    type="button"
+    class="email-change-banner__cancel"
+    data-testid="email-change-banner-cancel"
+    [disabled]="submitting()"
+    (click)="cancel()">
+    Cancel
+  </button>
+</div>

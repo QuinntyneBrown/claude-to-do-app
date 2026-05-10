@@ -12,3 +12,11 @@ export interface ChangePasswordRequest {
   readonly currentPassword: string;
   readonly newPassword: string;
 }
+
+export interface RequestEmailChangeRequest {
+  readonly newEmail: string;
+}
+
+export interface ConfirmEmailChangeRequest {
+  readonly token: string;
+}
