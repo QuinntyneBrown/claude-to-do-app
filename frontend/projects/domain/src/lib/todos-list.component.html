@@ -1,0 +1,56 @@
+<section class="todos-list">
+
+  <header class="todos-list__header">
+    <h2 class="todos-list__title">To-dos</h2>
+    <span class="todos-list__count" data-testid="todos-count">{{ todos().length }} item{{ todos().length === 1 ? '' : 's' }}</span>
+  </header>
+
+  <form class="todos-list__form" (ngSubmit)="addTodo()">
+    <mat-form-field appearance="outline" class="todos-list__input">
+      <mat-label>New to-do</mat-label>
+      <input
+        matInput
+        name="title"
+        data-testid="new-todo-input"
+        [(ngModel)]="newTitle"
+        maxlength="200"
+        placeholder="What needs doing?" />
+    </mat-form-field>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      data-testid="add-todo-button"
+      [disabled]="!newTitle.trim()">
+      <mat-icon>add</mat-icon>
+      Add
+    </button>
+  </form>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="todos-list__progress"></mat-progress-bar>
+  }
+
+  @if (error()) {
+    <p class="todos-list__error" data-testid="todos-error">{{ error() }}</p>
+  }
+
+  @if (!loading() && !error()) {
+    <ul class="todos-list__items" data-testid="todos-items">
+      @for (todo of todos(); track todo.id) {
+        <li
+          class="todos-list__item"
+          [class.todos-list__item--complete]="todo.status === 'Complete'"
+          data-testid="todo-item">
+          <mat-checkbox [checked]="todo.status === 'Complete'" disabled></mat-checkbox>
+          <span class="todos-list__item-title">{{ todo.title }}</span>
+        </li>
+      } @empty {
+        <li class="todos-list__empty" data-testid="todos-empty">
+          No to-dos yet. Add one to get started.
+        </li>
+      }
+    </ul>
+  }
+
+</section>

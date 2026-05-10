@@ -16,3 +16,15 @@ obj/
 # Environment / secrets
 *.env
 appsettings.*.local.json
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log*
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/

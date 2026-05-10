@@ -1,0 +1,41 @@
+:host {
+  display: block;
+}
+
+.todos-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--mat-sys-surface);
+}
+
+.todos-page__toolbar {
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  padding: 0 16px;
+}
+
+.todos-page__spacer {
+  flex: 1;
+}
+
+.todos-page__main {
+  flex: 1;
+  padding: 16px;
+}
+
+@media (min-width: 600px) {
+  .todos-page__toolbar {
+    padding: 0 24px;
+  }
+  .todos-page__main {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1240px) {
+  .todos-page__main {
+    padding: 32px;
+  }
+}

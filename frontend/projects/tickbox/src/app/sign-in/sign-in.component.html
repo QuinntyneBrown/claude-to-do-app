@@ -1,0 +1,46 @@
+<main class="sign-in">
+  <tb-brand-icon class="sign-in__brand" label="Tickbox"></tb-brand-icon>
+
+  <section class="sign-in__card">
+    <h1 class="sign-in__title">Sign in</h1>
+    <p class="sign-in__subtitle">Welcome back. Pick up where you left off.</p>
+
+    <form class="sign-in__form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="sign-in__field">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          name="email"
+          type="email"
+          autocomplete="email"
+          data-testid="email-input"
+          [(ngModel)]="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="sign-in__field">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          data-testid="password-input"
+          [(ngModel)]="password" />
+      </mat-form-field>
+
+      @if (error()) {
+        <p class="sign-in__error" data-testid="sign-in-error">{{ error() }}</p>
+      }
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="sign-in__submit"
+        data-testid="sign-in-submit"
+        [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+  </section>
+</main>

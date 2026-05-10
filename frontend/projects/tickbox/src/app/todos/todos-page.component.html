@@ -1,0 +1,14 @@
+<div class="todos-page">
+  <mat-toolbar class="todos-page__toolbar" color="primary">
+    <tb-brand-icon label="Tickbox"></tb-brand-icon>
+    <span class="todos-page__spacer"></span>
+    <button mat-button type="button" data-testid="sign-out-button" (click)="signOut()">
+      <mat-icon>logout</mat-icon>
+      Sign out
+    </button>
+  </mat-toolbar>
+
+  <main class="todos-page__main">
+    <tb-todos-list></tb-todos-list>
+  </main>
+</div>
