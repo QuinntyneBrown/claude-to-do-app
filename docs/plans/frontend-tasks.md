@@ -91,7 +91,7 @@ These are not repeated per task to avoid noise:
   - **Specs:** `todos-list.spec.ts` — `Empty_state_renders_with_add_cta_when_no_todos`, `List_groups_todos_into_incomplete_and_complete_sections`, `List_orders_by_due_date_ascending_then_created_at_descending`, `Filter_chip_filters_to_one_state_only`, `Header_shows_today_date_label`. `todo-toggle.spec.ts` (list-side) — `Tapping_checkbox_in_list_moves_todo_between_sections`.
   - **Mock fidelity:** explicitly verify at 360 / 768 / 1440 widths (nav-bar at mobile, nav-rail at tablet, expanded rail at desktop) — `responsive.spec.ts` is added later in F-011 but the visual pass happens here.
 
-### F-006 — Todo detail (create + edit + toggle + delete + activity)
+### F-006 — Todo detail (create + edit + toggle + delete + activity) — **done** (see `docs/evaluations/FI1-F006.md`)
 
 - **Implements:** REQ-TODO-1, REQ-TODO-2, REQ-TODO-4, REQ-TODO-5 (chip-set toggle), REQ-TODO-6, REQ-TODO-8. Mock: `mocks/todo-detail.html`.
 - **Depends on:** F-005 (`AppShellComponent`).

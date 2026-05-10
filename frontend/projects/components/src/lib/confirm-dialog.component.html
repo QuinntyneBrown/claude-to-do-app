@@ -1,0 +1,21 @@
+<div class="confirm-dialog" data-testid="confirm-dialog">
+  <h2 mat-dialog-title class="confirm-dialog__title">{{ data.title }}</h2>
+  <mat-dialog-content class="confirm-dialog__content">{{ data.message }}</mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button
+      mat-button
+      type="button"
+      data-testid="confirm-dialog-cancel"
+      (click)="cancel()">
+      {{ data.cancelLabel }}
+    </button>
+    <button
+      mat-flat-button
+      type="button"
+      [color]="data.destructive ? 'warn' : 'primary'"
+      data-testid="confirm-dialog-confirm"
+      (click)="confirm()">
+      {{ data.confirmLabel }}
+    </button>
+  </mat-dialog-actions>
+</div>

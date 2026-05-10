@@ -1,0 +1,22 @@
+<tb-app-shell [title]="mode() === 'create' ? 'New to-do' : 'Edit to-do'" [navItems]="navItems">
+  <div class="todo-detail-page">
+    @if (mode() === 'create') {
+      <tb-todo-edit-form
+        [existing]="null"
+        (saved)="onSaved()">
+      </tb-todo-edit-form>
+    }
+    @if (mode() === 'edit' && todo() !== null) {
+      <tb-todo-edit-form
+        [existing]="todo()"
+        (saved)="onSaved()"
+        (statusChanged)="onStatusChanged($event)"
+        (deleted)="onDeleteRequested()">
+      </tb-todo-edit-form>
+      <section class="todo-detail-page__activity">
+        <h3 class="todo-detail-page__activity-title">Activity</h3>
+        <tb-todo-activity-list [activity]="todo()!.activity"></tb-todo-activity-list>
+      </section>
+    }
+  </div>
+</tb-app-shell>

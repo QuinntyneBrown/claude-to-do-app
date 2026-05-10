@@ -1,0 +1,23 @@
+:host { display: block; }
+
+.todo-activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.todo-activity-list__item {
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.todo-activity-list__kind {
+  color: var(--mat-sys-on-surface);
+}
+
+.todo-activity-list__time {
+  margin-left: 4px;
+}

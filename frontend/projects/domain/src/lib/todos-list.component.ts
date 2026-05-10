@@ -63,8 +63,17 @@ export class TodosListComponent implements OnInit {
 
   protected onToggle(todo: Todo, status: TodoStatus): void {
     this.todosService.toggleStatus(todo.id, { status }).subscribe({
-      next: updated => {
-        this.todos.update(items => items.map(t => t.id === updated.id ? updated : t));
+      next: detail => {
+        const projected: Todo = {
+          id: detail.id,
+          title: detail.title,
+          notes: detail.notes,
+          dueDate: detail.dueDate,
+          status: detail.status,
+          createdAt: detail.createdAt,
+          completedAt: detail.completedAt
+        };
+        this.todos.update(items => items.map(t => t.id === projected.id ? projected : t));
       },
       error: () => this.refresh()
     });

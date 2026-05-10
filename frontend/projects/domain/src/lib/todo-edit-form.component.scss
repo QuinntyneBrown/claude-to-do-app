@@ -1,0 +1,27 @@
+:host { display: block; }
+
+.todo-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.todo-edit-form__field { width: 100%; }
+.todo-edit-form__field--notes textarea { resize: vertical; min-height: 120px; }
+
+.todo-edit-form__section-title {
+  margin: 8px 0 0;
+  font: var(--mat-sys-label-large);
+  letter-spacing: 0.1px;
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+}
+
+.todo-edit-form__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.todo-edit-form__save { min-width: 96px; }

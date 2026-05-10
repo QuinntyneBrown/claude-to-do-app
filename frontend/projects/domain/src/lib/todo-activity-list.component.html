@@ -1,0 +1,8 @@
+<ul class="todo-activity-list">
+  @for (entry of activity; track entry.occurredAt) {
+    <li class="todo-activity-list__item" data-testid="todo-activity-item">
+      <strong class="todo-activity-list__kind">{{ label(entry.kind) }}</strong>
+      <span class="todo-activity-list__time">· {{ formatTime(entry.occurredAt) }}</span>
+    </li>
+  }
+</ul>

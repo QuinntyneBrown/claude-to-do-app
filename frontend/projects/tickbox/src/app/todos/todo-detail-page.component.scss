@@ -1,0 +1,30 @@
+:host { display: block; }
+
+.todo-detail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.todo-detail-page__activity {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.todo-detail-page__activity-title {
+  margin: 0;
+  font: var(--mat-sys-title-medium);
+}
+
+@media (min-width: 1240px) {
+  .todo-detail-page {
+    max-width: 1100px;
+    display: grid;
+    grid-template-columns: minmax(0, 720px) minmax(0, 320px);
+    gap: 24px;
+    align-items: start;
+  }
+}
