@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tickbox.Application.Common;
+using Tickbox.Domain;
 
 namespace Tickbox.Application.Auth.SignInUser;
 
@@ -24,12 +25,17 @@ public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand
         var normalisedEmail = request.Email.Trim().ToLowerInvariant();
         var user = await _db.Users.SingleOrDefaultAsync(u => u.Email == normalisedEmail, cancellationToken);
 
-        if (user is null || !_hasher.Verify(request.Password, user.PasswordHash))
+        if (user is null || user.PasswordHash is null || !_hasher.Verify(request.Password, user.PasswordHash))
         {
             throw new AuthenticationFailedException(GenericFailure);
         }
 
-        var token = _tokens.CreateAccessToken(user);
+        var roleNames = await _db.UserRoles
+            .Where(ur => ur.UserId == user.Id)
+            .Join(_db.Roles, ur => ur.RoleId, r => r.Id, (_, r) => r.Name)
+            .ToListAsync(cancellationToken);
+
+        var token = _tokens.CreateAccessToken(user, roleNames);
         return new SignInUserResult(user.Id, token);
     }
 }

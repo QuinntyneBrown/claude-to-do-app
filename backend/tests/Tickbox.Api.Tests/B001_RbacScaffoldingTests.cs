@@ -35,7 +35,7 @@ public sealed class B001_RbacScaffoldingTests : IClassFixture<TickboxApiFactory>
 
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(payload.AccessToken);
         jwt.Claims.Should().Contain(c =>
-            (c.Type == "role" || c.Type.EndsWith("/role", StringComparison.Ordinal))
+            (c.Type == "role" || c.Type.EndsWith("/role", StringComparison.Ordinal) || c.Type == System.Security.Claims.ClaimTypes.Role)
             && c.Value == "User");
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", payload.AccessToken);

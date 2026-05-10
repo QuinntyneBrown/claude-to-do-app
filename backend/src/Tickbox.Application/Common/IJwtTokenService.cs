@@ -4,5 +4,5 @@ namespace Tickbox.Application.Common;
 
 public interface IJwtTokenService
 {
-    string CreateAccessToken(User user);
+    string CreateAccessToken(User user, IReadOnlyCollection<string> roles);
 }

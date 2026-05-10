@@ -40,9 +40,10 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         };
 
         _db.Users.Add(user);
+        _db.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = KnownRoles.UserRoleId });
         await _db.SaveChangesAsync(cancellationToken);
 
-        var token = _tokens.CreateAccessToken(user);
+        var token = _tokens.CreateAccessToken(user, new[] { KnownRoles.User });
         return new RegisterUserResult(user.Id, token);
     }
 }

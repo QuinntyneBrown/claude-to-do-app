@@ -7,7 +7,7 @@ using Tickbox.Application.Todos.GetTodos;
 namespace Tickbox.Api.Controllers;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = "User")]
 [Route("api/todos")]
 public sealed class TodosController : ControllerBase
 {

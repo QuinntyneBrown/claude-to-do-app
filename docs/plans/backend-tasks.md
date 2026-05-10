@@ -27,7 +27,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
 
 ## Tasks
 
-### B-001 — RBAC scaffolding + role on register
+### B-001 — RBAC scaffolding + role on register — **done** (see `docs/evaluations/BI1-B001.md`)
 
 - **Implements:** Auth §"RBAC implementation from database to frontend"; supporting REQ-AUTH-1, REQ-AUTH-3.
 - **Slice contents:**

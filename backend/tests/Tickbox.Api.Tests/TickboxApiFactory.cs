@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Tickbox.Domain;
 using Tickbox.Infrastructure.Persistence;
 
 namespace Tickbox.Api.Tests;
@@ -37,5 +38,22 @@ public sealed class TickboxApiFactory : WebApplicationFactory<Program>
                 options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
         });
+    }
+
+    protected override void ConfigureClient(System.Net.Http.HttpClient client)
+    {
+        base.ConfigureClient(client);
+        EnsureSeeded();
+    }
+
+    private void EnsureSeeded()
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (!db.Roles.Any())
+        {
+            db.Roles.Add(new Role { Id = KnownRoles.UserRoleId, Name = KnownRoles.User });
+            db.SaveChanges();
+        }
     }
 }

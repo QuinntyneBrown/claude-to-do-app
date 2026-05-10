@@ -19,7 +19,7 @@ public sealed class JwtTokenService : IJwtTokenService
         _clock = clock;
     }
 
-    public string CreateAccessToken(User user)
+    public string CreateAccessToken(User user, IReadOnlyCollection<string> roles)
     {
         var keyBytes = Encoding.UTF8.GetBytes(_options.SigningKey);
         var credentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
@@ -27,13 +27,18 @@ public sealed class JwtTokenService : IJwtTokenService
         var now = _clock.GetUtcNow().UtcDateTime;
         var expires = now.AddMinutes(_options.AccessTokenLifetimeMinutes);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("display_name", user.DisplayName)
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("display_name", user.DisplayName)
         };
+
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
 
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,
