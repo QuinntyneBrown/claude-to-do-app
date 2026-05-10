@@ -14,6 +14,7 @@ public sealed class AppDbContext : DbContext, IAppDbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<SignInAttempt> SignInAttempts => Set<SignInAttempt>();
     public DbSet<SecurityAuditEvent> SecurityAuditEvents => Set<SecurityAuditEvent>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,6 +72,16 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             b.Property(e => e.IpAddress).HasMaxLength(64);
             b.Property(e => e.Detail).HasMaxLength(1024);
             b.HasIndex(e => new { e.UserId, e.OccurredAt });
+        });
+
+        modelBuilder.Entity<RefreshToken>(b =>
+        {
+            b.ToTable("RefreshTokens");
+            b.HasKey(t => t.Id);
+            b.Property(t => t.TokenHash).IsRequired().HasMaxLength(128);
+            b.HasIndex(t => t.TokenHash).IsUnique();
+            b.HasIndex(t => t.UserId);
+            b.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

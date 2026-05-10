@@ -91,11 +91,13 @@ public sealed class B003_RefreshTokensAndSignOutTests : IClassFixture<TickboxApi
         var refreshCookieValue = ExtractRefreshCookie(register);
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", registered.AccessToken);
-        var signOut = await client.PostAsync("/api/auth/sign-out", content: null);
+        using var signOutRequest = new HttpRequestMessage(HttpMethod.Post, "/api/auth/sign-out");
+        signOutRequest.Headers.Add("Cookie", $"{CookieName}={refreshCookieValue}");
+        var signOut = await client.SendAsync(signOutRequest);
         signOut.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         var clearingHeader = signOut.Headers.GetValues("Set-Cookie").Single(h => h.StartsWith($"{CookieName}=", StringComparison.Ordinal));
-        clearingHeader.Should().Contain("Max-Age=0");
+        clearingHeader.Should().MatchRegex("(?i)max-age=0");
 
         client.DefaultRequestHeaders.Authorization = null;
         using var refresh = new HttpRequestMessage(HttpMethod.Post, "/api/auth/refresh");

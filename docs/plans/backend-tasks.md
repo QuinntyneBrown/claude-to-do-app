@@ -52,7 +52,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance tests:** `Sign_in_locks_out_after_five_failures_in_window`, `Sign_in_with_null_password_hash_returns_401_generic`.
 - **Specific guidance rules:** Auth §"Repeated failed sign-ins are rate-limited, locked out, or otherwise throttled, with a security audit log entry on each event".
 
-### B-003 — Refresh tokens + sign-out
+### B-003 — Refresh tokens + sign-out — **done** (see `docs/evaluations/BI1-B003.md`)
 
 - **Implements:** REQ-AUTH-5, REQ-NFR-6, partly REQ-AUTH-2 (token rotation on success).
 - **Slice contents:**

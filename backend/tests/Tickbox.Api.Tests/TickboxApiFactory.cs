@@ -40,10 +40,14 @@ public sealed class TickboxApiFactory : WebApplicationFactory<Program>
         });
     }
 
-    protected override void ConfigureClient(System.Net.Http.HttpClient client)
+    public new System.Net.Http.HttpClient CreateClient()
     {
-        base.ConfigureClient(client);
         EnsureSeeded();
+        return base.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = false
+        });
     }
 
     private void EnsureSeeded()

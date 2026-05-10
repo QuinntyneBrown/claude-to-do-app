@@ -5,7 +5,7 @@ using Tickbox.Domain;
 
 namespace Tickbox.Application.Auth.SignInUser;
 
-public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand, SignInUserResult>
+public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand, AuthenticationOutcome>
 {
     private const string GenericFailure = "Incorrect email or password.";
     private const int MaxAttempts = 5;
@@ -14,6 +14,7 @@ public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand
     private readonly IAppDbContext _db;
     private readonly IPasswordHasher _hasher;
     private readonly IJwtTokenService _tokens;
+    private readonly IRefreshTokenService _refreshTokens;
     private readonly IRequestContext _request;
     private readonly TimeProvider _clock;
 
@@ -21,17 +22,19 @@ public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand
         IAppDbContext db,
         IPasswordHasher hasher,
         IJwtTokenService tokens,
+        IRefreshTokenService refreshTokens,
         IRequestContext request,
         TimeProvider clock)
     {
         _db = db;
         _hasher = hasher;
         _tokens = tokens;
+        _refreshTokens = refreshTokens;
         _request = request;
         _clock = clock;
     }
 
-    public async Task<SignInUserResult> Handle(SignInUserCommand request, CancellationToken cancellationToken)
+    public async Task<AuthenticationOutcome> Handle(SignInUserCommand request, CancellationToken cancellationToken)
     {
         var normalisedEmail = request.Email.Trim().ToLowerInvariant();
         var now = _clock.GetUtcNow();
@@ -64,8 +67,10 @@ public sealed class SignInUserCommandHandler : IRequestHandler<SignInUserCommand
             .Join(_db.Roles, ur => ur.RoleId, r => r.Id, (_, r) => r.Name)
             .ToListAsync(cancellationToken);
 
-        var token = _tokens.CreateAccessToken(user, roleNames);
-        return new SignInUserResult(user.Id, token);
+        var accessToken = _tokens.CreateAccessToken(user, roleNames);
+        var (refreshPlain, refreshPersisted) = await _refreshTokens.IssueAsync(user.Id, cancellationToken);
+
+        return new AuthenticationOutcome(user.Id, accessToken, refreshPlain, refreshPersisted.ExpiresAt);
     }
 
     private async Task RecordAsync(string email, bool succeeded, DateTimeOffset now, CancellationToken cancellationToken)
