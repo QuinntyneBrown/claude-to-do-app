@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mocks — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <main class="mock-index">
+
+    <div style="display:flex; align-items:center; gap: var(--space-3); margin-bottom: var(--space-4);">
+      <span class="auth-screen__brand-icon material-symbols-outlined" aria-hidden="true">check_circle</span>
+      <span class="auth-screen__brand-name">Tickbox mocks</span>
+    </div>
+
+    <h1 class="mock-index__title">Static HTML mocks</h1>
+    <p class="mock-index__subtitle">Material 3 visual previews for the radically simple to-do app. A to-do has two states: Incomplete and Complete.</p>
+
+    <h2 class="mock-index__group-title">Unauthenticated</h2>
+    <div class="mock-index__grid">
+      <a class="mock-index__tile" href="sign-in.html">
+        <span class="mock-index__tile-title">Sign in</span>
+        <span class="mock-index__tile-supporting">Email + password, SSO, link to reset.</span>
+      </a>
+      <a class="mock-index__tile" href="sign-up.html">
+        <span class="mock-index__tile-title">Create account</span>
+        <span class="mock-index__tile-supporting">Display name, email, password.</span>
+      </a>
+      <a class="mock-index__tile" href="password-reset.html">
+        <span class="mock-index__tile-title">Reset password</span>
+        <span class="mock-index__tile-supporting">Request a reset email.</span>
+      </a>
+    </div>
+
+    <h2 class="mock-index__group-title">Authenticated</h2>
+    <div class="mock-index__grid">
+      <a class="mock-index__tile" href="todos.html">
+        <span class="mock-index__tile-title">To-dos (list)</span>
+        <span class="mock-index__tile-supporting">Primary landing. Filter chips, Incomplete + Complete sections, FAB.</span>
+      </a>
+      <a class="mock-index__tile" href="todo-detail.html">
+        <span class="mock-index__tile-title">To-do detail / edit</span>
+        <span class="mock-index__tile-supporting">Title, notes, status toggle, due date, save / cancel / delete.</span>
+      </a>
+      <a class="mock-index__tile" href="todos-empty.html">
+        <span class="mock-index__tile-title">Empty state</span>
+        <span class="mock-index__tile-supporting">No to-dos yet — primary CTA to add one.</span>
+      </a>
+      <a class="mock-index__tile" href="profile.html">
+        <span class="mock-index__tile-title">Profile / settings</span>
+        <span class="mock-index__tile-supporting">Account info, password, sign out, delete account.</span>
+      </a>
+      <a class="mock-index__tile" href="error.html">
+        <span class="mock-index__tile-title">Error state</span>
+        <span class="mock-index__tile-supporting">Network failure illustration with retry.</span>
+      </a>
+    </div>
+
+    <p class="mock-index__subtitle" style="margin-top: var(--space-12);">
+      Open any mock at 360 / 768 / 1440 widths to verify mobile / tablet / desktop layouts.
+    </p>
+  </main>
+</body>
+</html>

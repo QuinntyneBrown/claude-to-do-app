@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit to-do — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="app-shell__topbar top-bar">
+      <a class="top-bar__action" href="todos.html" aria-label="Back">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <h1 class="top-bar__title">Edit to-do</h1>
+      <button class="top-bar__action" type="button" aria-label="Delete">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+    </header>
+
+    <nav class="app-shell__rail nav-rail">
+      <a class="nav-rail__item nav-rail__item--active" href="todos.html">
+        <span class="nav-rail__icon material-symbols-outlined">checklist</span>
+        <span class="nav-rail__label">To-dos</span>
+      </a>
+      <a class="nav-rail__item" href="todos-empty.html">
+        <span class="nav-rail__icon material-symbols-outlined">inbox</span>
+        <span class="nav-rail__label">Inbox</span>
+      </a>
+      <a class="nav-rail__item" href="profile.html">
+        <span class="nav-rail__icon material-symbols-outlined">person</span>
+        <span class="nav-rail__label">Profile</span>
+      </a>
+    </nav>
+
+    <main class="app-shell__main">
+
+      <div class="layout-grid layout-grid--detail">
+        <section class="card card--outlined">
+
+          <form class="auth-screen__form" onsubmit="event.preventDefault(); window.location='todos.html';">
+
+            <label class="text-field">
+              <div class="text-field__control">
+                <span class="text-field__label">Title</span>
+                <input class="text-field__input" type="text" value="Draft launch announcement" />
+              </div>
+            </label>
+
+            <label class="text-field">
+              <div class="text-field__control" style="min-height: 120px; align-items: flex-start;">
+                <span class="text-field__label">Notes</span>
+                <textarea class="text-field__input" rows="5" style="padding-top: var(--space-4); resize: vertical;">Outline the v1 announcement: target message, distribution channels, owner, ship-by date.</textarea>
+              </div>
+            </label>
+
+            <h3 class="section-title" style="margin-top:0;">Status</h3>
+            <div class="chip-set">
+              <button class="chip" type="button">Incomplete</button>
+              <button class="chip chip--selected" type="button">
+                <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+                Complete
+              </button>
+            </div>
+
+            <label class="text-field">
+              <div class="text-field__control">
+                <span class="text-field__label">Due date</span>
+                <input class="text-field__input" type="text" value="9 May 2026" />
+                <span class="text-field__icon material-symbols-outlined" aria-hidden="true">event</span>
+              </div>
+            </label>
+
+            <div style="display:flex; gap: var(--space-3); justify-content: flex-end; margin-top: var(--space-2);">
+              <a class="button button--text" href="todos.html">Cancel</a>
+              <button class="button button--filled" type="submit">Save</button>
+            </div>
+          </form>
+        </section>
+
+        <aside style="display: flex; flex-direction: column; gap: var(--space-4);">
+          <section class="card card--filled">
+            <h3 class="card__title type-title-m">Activity</h3>
+            <ul class="list" style="gap: var(--space-3);">
+              <li class="type-body-m" style="color: var(--md-sys-color-on-surface-variant);">
+                <strong style="color: var(--md-sys-color-on-surface);">Created</strong> · 8 May, 14:02
+              </li>
+              <li class="type-body-m" style="color: var(--md-sys-color-on-surface-variant);">
+                <strong style="color: var(--md-sys-color-on-surface);">Marked complete</strong> · 9 May, 09:14
+              </li>
+            </ul>
+          </section>
+
+          <section class="card card--filled">
+            <h3 class="card__title type-title-m">Tips</h3>
+            <p class="card__body type-body-m">A to-do has just two states: Incomplete or Complete. Toggle from this screen or directly in the list.</p>
+          </section>
+        </aside>
+      </div>
+
+    </main>
+
+    <nav class="app-shell__navbar nav-bar">
+      <a class="nav-bar__item nav-bar__item--active" href="todos.html">
+        <span class="nav-bar__icon material-symbols-outlined">checklist</span>
+        <span class="nav-bar__label">To-dos</span>
+      </a>
+      <a class="nav-bar__item" href="todos-empty.html">
+        <span class="nav-bar__icon material-symbols-outlined">inbox</span>
+        <span class="nav-bar__label">Inbox</span>
+      </a>
+      <a class="nav-bar__item" href="profile.html">
+        <span class="nav-bar__icon material-symbols-outlined">person</span>
+        <span class="nav-bar__label">Profile</span>
+      </a>
+    </nav>
+
+  </div>
+</body>
+</html>

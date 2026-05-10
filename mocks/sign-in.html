@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <main class="auth-screen">
+    <div class="auth-screen__brand">
+      <span class="auth-screen__brand-icon material-symbols-outlined" aria-hidden="true">check_circle</span>
+      <span class="auth-screen__brand-name">Tickbox</span>
+    </div>
+
+    <section class="auth-screen__card">
+      <h1 class="auth-screen__title">Sign in</h1>
+      <p class="auth-screen__subtitle">Welcome back. Pick up where you left off.</p>
+
+      <form class="auth-screen__form" onsubmit="event.preventDefault(); window.location='todos.html';">
+        <label class="text-field">
+          <div class="text-field__control">
+            <span class="text-field__label">Email</span>
+            <input class="text-field__input" type="email" value="ada@example.com" />
+          </div>
+        </label>
+
+        <label class="text-field">
+          <div class="text-field__control">
+            <span class="text-field__label">Password</span>
+            <input class="text-field__input" type="password" value="••••••••••" />
+            <span class="text-field__icon material-symbols-outlined" aria-hidden="true">visibility_off</span>
+          </div>
+        </label>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <a class="button button--text" href="password-reset.html">Forgot password?</a>
+        </div>
+
+        <button class="button button--filled button--full" type="submit">Sign in</button>
+      </form>
+
+      <div class="auth-screen__divider">or continue with</div>
+
+      <button class="button button--outlined button--full" type="button">
+        <span class="material-symbols-outlined" aria-hidden="true">key</span>
+        Sign in with SSO
+      </button>
+
+      <p class="auth-screen__footer">
+        New to Tickbox? <a href="sign-up.html">Create an account</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>

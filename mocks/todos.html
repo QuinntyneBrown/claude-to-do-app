@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-dos — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- Top app bar -->
+    <header class="app-shell__topbar top-bar">
+      <button class="top-bar__action" type="button" aria-label="Menu">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <h1 class="top-bar__title">To-dos</h1>
+      <button class="top-bar__action" type="button" aria-label="Search">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+      <a class="top-bar__action" href="profile.html" aria-label="Profile">
+        <span class="avatar" style="width:32px; height:32px; font-size:14px;">AL</span>
+      </a>
+    </header>
+
+    <!-- Navigation rail (tablet+) -->
+    <nav class="app-shell__rail nav-rail">
+      <a class="nav-rail__item nav-rail__item--active" href="todos.html">
+        <span class="nav-rail__icon material-symbols-outlined">checklist</span>
+        <span class="nav-rail__label">To-dos</span>
+      </a>
+      <a class="nav-rail__item" href="todos-empty.html">
+        <span class="nav-rail__icon material-symbols-outlined">inbox</span>
+        <span class="nav-rail__label">Inbox</span>
+      </a>
+      <a class="nav-rail__item" href="profile.html">
+        <span class="nav-rail__icon material-symbols-outlined">person</span>
+        <span class="nav-rail__label">Profile</span>
+      </a>
+    </nav>
+
+    <main class="app-shell__main">
+
+      <section class="page-header">
+        <h2 class="page-header__title">Today, 9 May</h2>
+        <span class="type-body-m" style="color: var(--md-sys-color-on-surface-variant);">3 of 7 complete</span>
+      </section>
+
+      <div class="chip-set" role="tablist">
+        <button class="chip chip--selected" role="tab" aria-selected="true">All <span style="opacity:.7;">7</span></button>
+        <button class="chip" role="tab" aria-selected="false">Incomplete <span style="opacity:.7;">4</span></button>
+        <button class="chip" role="tab" aria-selected="false">Complete <span style="opacity:.7;">3</span></button>
+      </div>
+
+      <h3 class="section-title">Incomplete</h3>
+      <ul class="list">
+        <li>
+          <a class="list-item" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true"></span>
+            <div class="list-item__body">
+              <p class="list-item__title">Draft launch announcement</p>
+              <p class="list-item__supporting">Due today</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true"></span>
+            <div class="list-item__body">
+              <p class="list-item__title">Review pull request #482</p>
+              <p class="list-item__supporting">No due date</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true"></span>
+            <div class="list-item__body">
+              <p class="list-item__title">Email Hannah about onboarding</p>
+              <p class="list-item__supporting">Due tomorrow</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true"></span>
+            <div class="list-item__body">
+              <p class="list-item__title">Renew domain registration</p>
+              <p class="list-item__supporting">Due Mon, 12 May</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+      </ul>
+
+      <h3 class="section-title">Complete</h3>
+      <ul class="list">
+        <li>
+          <a class="list-item list-item--complete" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true">
+              <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+            </span>
+            <div class="list-item__body">
+              <p class="list-item__title">Submit weekly report</p>
+              <p class="list-item__supporting">Completed 8 May</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item list-item--complete" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true">
+              <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+            </span>
+            <div class="list-item__body">
+              <p class="list-item__title">Schedule dentist appointment</p>
+              <p class="list-item__supporting">Completed 8 May</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item list-item--complete" href="todo-detail.html">
+            <span class="list-item__checkbox" aria-hidden="true">
+              <span class="material-symbols-outlined" style="font-size:18px;">check</span>
+            </span>
+            <div class="list-item__body">
+              <p class="list-item__title">Pay May rent</p>
+              <p class="list-item__supporting">Completed 7 May</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </a>
+        </li>
+      </ul>
+
+    </main>
+
+    <!-- Bottom navigation (mobile) -->
+    <nav class="app-shell__navbar nav-bar">
+      <a class="nav-bar__item nav-bar__item--active" href="todos.html">
+        <span class="nav-bar__icon material-symbols-outlined">checklist</span>
+        <span class="nav-bar__label">To-dos</span>
+      </a>
+      <a class="nav-bar__item" href="todos-empty.html">
+        <span class="nav-bar__icon material-symbols-outlined">inbox</span>
+        <span class="nav-bar__label">Inbox</span>
+      </a>
+      <a class="nav-bar__item" href="profile.html">
+        <span class="nav-bar__icon material-symbols-outlined">person</span>
+        <span class="nav-bar__label">Profile</span>
+      </a>
+    </nav>
+
+    <!-- FAB -->
+    <a class="app-shell__fab fab fab--extended" href="todo-detail.html">
+      <span class="fab__icon material-symbols-outlined">add</span>
+      <span>New to-do</span>
+    </a>
+
+  </div>
+</body>
+</html>

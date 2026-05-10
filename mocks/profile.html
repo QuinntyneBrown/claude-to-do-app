@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="app-shell__topbar top-bar">
+      <a class="top-bar__action" href="todos.html" aria-label="Back">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <h1 class="top-bar__title">Profile</h1>
+    </header>
+
+    <nav class="app-shell__rail nav-rail">
+      <a class="nav-rail__item" href="todos.html">
+        <span class="nav-rail__icon material-symbols-outlined">checklist</span>
+        <span class="nav-rail__label">To-dos</span>
+      </a>
+      <a class="nav-rail__item" href="todos-empty.html">
+        <span class="nav-rail__icon material-symbols-outlined">inbox</span>
+        <span class="nav-rail__label">Inbox</span>
+      </a>
+      <a class="nav-rail__item nav-rail__item--active" href="profile.html">
+        <span class="nav-rail__icon material-symbols-outlined">person</span>
+        <span class="nav-rail__label">Profile</span>
+      </a>
+    </nav>
+
+    <main class="app-shell__main">
+
+      <section class="card card--filled" style="display:flex; align-items:center; gap: var(--space-4);">
+        <span class="avatar avatar--large">AL</span>
+        <div>
+          <h2 class="type-headline-s" style="margin:0;">Ada Lovelace</h2>
+          <p class="type-body-m" style="margin:4px 0 0; color: var(--md-sys-color-on-surface-variant);">ada@example.com</p>
+        </div>
+      </section>
+
+      <h3 class="section-title">Account</h3>
+      <ul class="list">
+        <li>
+          <a class="list-item" href="#">
+            <span class="material-symbols-outlined" style="font-size:24px; color: var(--md-sys-color-on-surface-variant);">person</span>
+            <div class="list-item__body">
+              <p class="list-item__title">Display name</p>
+              <p class="list-item__supporting">Ada Lovelace</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item" href="#">
+            <span class="material-symbols-outlined" style="font-size:24px; color: var(--md-sys-color-on-surface-variant);">mail</span>
+            <div class="list-item__body">
+              <p class="list-item__title">Email address</p>
+              <p class="list-item__supporting">ada@example.com</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined">chevron_right</span>
+          </a>
+        </li>
+      </ul>
+
+      <h3 class="section-title">Security</h3>
+      <ul class="list">
+        <li>
+          <a class="list-item" href="password-reset.html">
+            <span class="material-symbols-outlined" style="font-size:24px; color: var(--md-sys-color-on-surface-variant);">lock</span>
+            <div class="list-item__body">
+              <p class="list-item__title">Change password</p>
+              <p class="list-item__supporting">Last changed 14 March 2026</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined">chevron_right</span>
+          </a>
+        </li>
+        <li>
+          <a class="list-item" href="#">
+            <span class="material-symbols-outlined" style="font-size:24px; color: var(--md-sys-color-on-surface-variant);">history</span>
+            <div class="list-item__body">
+              <p class="list-item__title">Sign-in activity</p>
+              <p class="list-item__supporting">Last sign-in: 9 May, 08:41</p>
+            </div>
+            <span class="list-item__trailing material-symbols-outlined">chevron_right</span>
+          </a>
+        </li>
+      </ul>
+
+      <h3 class="section-title">Session</h3>
+      <div style="display:flex; flex-direction: column; gap: var(--space-3); max-width: 320px;">
+        <a class="button button--tonal button--full" href="sign-in.html">
+          <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+          Sign out
+        </a>
+        <a class="button button--outlined button--full button--danger" style="background:transparent; color: var(--md-sys-color-error); border-color: var(--md-sys-color-error);" href="#">
+          <span class="material-symbols-outlined" aria-hidden="true">delete_forever</span>
+          Delete account
+        </a>
+      </div>
+
+    </main>
+
+    <nav class="app-shell__navbar nav-bar">
+      <a class="nav-bar__item" href="todos.html">
+        <span class="nav-bar__icon material-symbols-outlined">checklist</span>
+        <span class="nav-bar__label">To-dos</span>
+      </a>
+      <a class="nav-bar__item" href="todos-empty.html">
+        <span class="nav-bar__icon material-symbols-outlined">inbox</span>
+        <span class="nav-bar__label">Inbox</span>
+      </a>
+      <a class="nav-bar__item nav-bar__item--active" href="profile.html">
+        <span class="nav-bar__icon material-symbols-outlined">person</span>
+        <span class="nav-bar__label">Profile</span>
+      </a>
+    </nav>
+
+  </div>
+</body>
+</html>

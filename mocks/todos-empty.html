@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inbox — Tickbox</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&display=swap" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="app-shell__topbar top-bar">
+      <button class="top-bar__action" type="button" aria-label="Menu">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <h1 class="top-bar__title">Inbox</h1>
+      <a class="top-bar__action" href="profile.html" aria-label="Profile">
+        <span class="avatar" style="width:32px; height:32px; font-size:14px;">AL</span>
+      </a>
+    </header>
+
+    <nav class="app-shell__rail nav-rail">
+      <a class="nav-rail__item" href="todos.html">
+        <span class="nav-rail__icon material-symbols-outlined">checklist</span>
+        <span class="nav-rail__label">To-dos</span>
+      </a>
+      <a class="nav-rail__item nav-rail__item--active" href="todos-empty.html">
+        <span class="nav-rail__icon material-symbols-outlined">inbox</span>
+        <span class="nav-rail__label">Inbox</span>
+      </a>
+      <a class="nav-rail__item" href="profile.html">
+        <span class="nav-rail__icon material-symbols-outlined">person</span>
+        <span class="nav-rail__label">Profile</span>
+      </a>
+    </nav>
+
+    <main class="app-shell__main">
+      <section class="empty-state">
+        <span class="empty-state__icon material-symbols-outlined" aria-hidden="true">inbox</span>
+        <h2 class="empty-state__title">Your inbox is clear</h2>
+        <p class="empty-state__supporting">Add your first to-do and it'll show up here. A to-do is either Incomplete or Complete — that's it.</p>
+        <a class="button button--filled" href="todo-detail.html">
+          <span class="material-symbols-outlined" aria-hidden="true">add</span>
+          Add a to-do
+        </a>
+      </section>
+    </main>
+
+    <nav class="app-shell__navbar nav-bar">
+      <a class="nav-bar__item" href="todos.html">
+        <span class="nav-bar__icon material-symbols-outlined">checklist</span>
+        <span class="nav-bar__label">To-dos</span>
+      </a>
+      <a class="nav-bar__item nav-bar__item--active" href="todos-empty.html">
+        <span class="nav-bar__icon material-symbols-outlined">inbox</span>
+        <span class="nav-bar__label">Inbox</span>
+      </a>
+      <a class="nav-bar__item" href="profile.html">
+        <span class="nav-bar__icon material-symbols-outlined">person</span>
+        <span class="nav-bar__label">Profile</span>
+      </a>
+    </nav>
+
+    <a class="app-shell__fab fab fab--extended" href="todo-detail.html">
+      <span class="fab__icon material-symbols-outlined">add</span>
+      <span>New to-do</span>
+    </a>
+
+  </div>
+</body>
+</html>
