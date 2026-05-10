@@ -16,7 +16,24 @@
 
   <tb-loading-bar [loading]="loading()"></tb-loading-bar>
 
-  <tb-error-banner [message]="error()" testId="todos-error"></tb-error-banner>
+  @if (!loading() && error()) {
+    <tb-empty-state
+      icon="cloud_off"
+      title="Couldn't load your to-dos"
+      [supportingText]="error()"
+      variant="error"
+      testId="todos-load-error">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        data-testid="todos-load-error-retry"
+        (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Try again
+      </button>
+    </tb-empty-state>
+  }
 
   @if (!loading() && !error()) {
     @if (todos().length === 0) {

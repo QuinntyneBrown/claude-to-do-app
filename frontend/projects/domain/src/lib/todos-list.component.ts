@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, Inject, OnInit, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ITodosService, TODOS_SERVICE, Todo, TodoStatus } from 'api';
-import { ErrorBannerComponent, LoadingBarComponent, EmptyStateComponent } from 'components';
+import { LoadingBarComponent, EmptyStateComponent } from 'components';
 import { catchError, finalize, of } from 'rxjs';
 import { TodoListItemComponent } from './todo-list-item.component';
 import { TodoFilter, TodoFilterChipsComponent } from './todo-filter-chips.component';
@@ -9,7 +11,8 @@ import { TodoFilter, TodoFilterChipsComponent } from './todo-filter-chips.compon
   selector: 'tb-todos-list',
   standalone: true,
   imports: [
-    ErrorBannerComponent,
+    MatButtonModule,
+    MatIconModule,
     LoadingBarComponent,
     EmptyStateComponent,
     TodoListItemComponent,
@@ -49,7 +52,7 @@ export class TodosListComponent implements OnInit {
       .list()
       .pipe(
         catchError(() => {
-          this.error.set('Could not load to-dos. Sign in and try again.');
+          this.error.set('We couldn’t reach the server. Check your connection and try again.');
           return of<Todo[]>([]);
         }),
         finalize(() => this.loading.set(false))

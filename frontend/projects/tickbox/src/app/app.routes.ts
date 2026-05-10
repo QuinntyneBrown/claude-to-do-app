@@ -47,5 +47,9 @@ export const routes: Routes = [
     path: 'email-change/confirm',
     loadComponent: () => import('./email-change/confirm-email-change-page.component').then(m => m.ConfirmEmailChangePageComponent)
   },
-  { path: '**', redirectTo: 'todos' }
+  {
+    path: 'error',
+    loadComponent: () => import('./error/error-page.component').then(m => m.ErrorPageComponent)
+  },
+  { path: '**', redirectTo: '/error?reason=not_found' }
 ];

@@ -1,0 +1,26 @@
+<tb-app-shell title="Something went wrong" [navItems]="navItems">
+  <tb-empty-state
+    icon="error"
+    [title]="title"
+    [supportingText]="supportingText"
+    variant="error"
+    testId="error-page-state">
+    <a
+      mat-flat-button
+      color="primary"
+      routerLink="/todos"
+      data-testid="error-page-back-to-todos">
+      <mat-icon>checklist</mat-icon>
+      Back to to-dos
+    </a>
+    <button
+      mat-stroked-button
+      type="button"
+      class="error-page__retry"
+      data-testid="error-page-retry"
+      (click)="reload()">
+      <mat-icon>refresh</mat-icon>
+      Try again
+    </button>
+  </tb-empty-state>
+</tb-app-shell>
