@@ -1,7 +1,7 @@
 # Tickbox backend — vertically sliced tasks (BT1)
 
-Author: `claude@M5` (BT1)
-Status: draft, awaiting BT2 evaluation
+Author: `claude@M5` (BT1, BT2)
+Status: approved (BT2 pass 2 clean)
 Inputs: `docs/plans/backend.md` (approved), `docs/requirements.md` (approved), `backend/` MVP (accepted).
 
 This list takes every plan item from `docs/plans/backend.md` and decomposes it into vertical slices. **Every task ships end-to-end:** controller endpoint(s) → command/query + validator + handler (Application) → entity / DbContext changes (Domain / Infrastructure) → migration (if needed) → acceptance test (Tickbox.Api.Tests). No "scaffolding only" tasks; no horizontal layer-only work.
@@ -86,7 +86,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Application:** `IOidcClient` interface (`ExchangeCodeAsync` returns user claims).
   - **Infrastructure:** real `OidcClient` implementing `IOidcClient` (issuer-metadata discovery + token exchange + ID-token validation). Registered only if `Oidc:Enabled = true` in configuration.
   - **Application:** `BeginOidcSignInQuery` + handler (returns auth URL + state; persists `(state → code_verifier)` in a short-TTL store — implementation: a small `OidcAuthorizationRequest` table with `(State, CodeVerifier, ExpiresAt)` and a single migration row; or `IDistributedCache` if available — pick the table for v1 to avoid an extra dependency).
-  - **Migration:** `AddOidcAuthorizationRequests` (only if Oidc enabled — but cleaner to ship the table unconditionally so `OidcClient` is the only conditional part). Numbering: this slice introduces migration #002b alongside #002, OR a separate migration after #008 depending on relative landing order; BT2 will pin the number.
+  - **Migration #009 `AddOidcAuthorizationRequests`:** ships unconditionally (the table exists in every environment; only the `OidcClient` registration is gated by `Oidc:Enabled`). Schema: `(State PK, CodeVerifier, ExpiresAt)`.
   - **Application:** `CompleteOidcSignInCommand` + handler + validator (looks up state, calls `IOidcClient`, provisions `User` on first sign-in with `PasswordHash = null` and `User` role, issues access + refresh tokens).
   - **Api:** `AuthController.BeginOidc` (`GET /api/auth/oidc/authorize`), `AuthController.CompleteOidc` (`POST /api/auth/oidc/callback`). When `Oidc:Enabled = false`, the endpoints return 404 (or are not mapped). REQ-AUTH-3 AC2 — frontend uses the same config flag to hide the SSO button.
   - **Acceptance tests** (env: `Oidc:Enabled = true` with a fake `IOidcClient` registered in the test factory): `Begin_oidc_returns_authorization_url_and_persists_state`, `Complete_oidc_first_time_provisions_user_with_role_and_no_password`, `Complete_oidc_returning_user_signs_in_without_provisioning`. Plus one disabled-env test: `Oidc_endpoints_return_404_when_disabled`.
@@ -231,7 +231,7 @@ Every plan section in `docs/plans/backend.md` is touched by at least one task:
 | §5 controller surface                     | controllers extended in each task                      |
 | §6 auth flows                             | B-001 (RBAC), B-002 (lockout), B-003 (refresh + signout), B-004 (reset), B-005 (OIDC) |
 | §6.5 `IRequestContext`                    | B-002                                                  |
-| §7 migration sequencing 002–008           | B-001 (#002), B-002 (#003), B-003 (#004), B-004 (#005), B-007 (#006), B-010 (#007 + #008) |
+| §7 migration sequencing 002–008           | B-001 (#002), B-002 (#003), B-003 (#004), B-004 (#005), B-007 (#006), B-010 (#007 + #008), B-005 (#009 — added in BT2 pass to pin the OIDC migration number) |
 | §8 deferred no-op (`IEmailService`)       | B-004                                                  |
 
 Every task is a true vertical slice (controller → command → handler → DB → test). No task crosses a layer boundary inconsistently with the guidance: every command lives in `Tickbox.Application`, every controller in `Tickbox.Api`, every entity in `Tickbox.Domain`, every EF / JWT / bcrypt / email / OIDC concrete in `Tickbox.Infrastructure`. No task introduces a repository, unit-of-work, generic CRUD service, or other forbidden abstraction.
