@@ -112,7 +112,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `AccountController` adds `POST /email-change/request`, `POST /email-change/confirm`, `DELETE /email-change`.
   - **Acceptance tests:** `Request_email_change_persists_pending_and_keeps_login_email`, `Confirm_email_change_with_valid_token_swaps_login_email`, `Confirm_email_change_with_expired_token_returns_400`, `Cancel_email_change_clears_pending_state`.
 
-### B-008 — Account: change password
+### B-008 — Account: change password — **done** (see `docs/evaluations/BI1-B008.md`)
 
 - **Implements:** REQ-ACCT-3, REQ-AUTH-7, REQ-NFR-4.
 - **Depends on:** B-002 (audit), B-003 (revoke other sessions on success).

@@ -1,7 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tickbox.Api.Auth;
 using Tickbox.Application.Account;
+using Tickbox.Application.Account.ChangePassword;
 using Tickbox.Application.Account.EmailChange;
 using Tickbox.Application.Account.GetMyProfile;
 using Tickbox.Application.Account.UpdateDisplayName;
@@ -53,5 +55,13 @@ public sealed class AccountController : ControllerBase
     {
         var profile = await _mediator.Send(new CancelEmailChangeCommand(), cancellationToken);
         return Ok(profile);
+    }
+
+    [HttpPut("password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        var callerRefresh = RefreshTokenCookie.Read(Request);
+        await _mediator.Send(new ChangePasswordCommand(request.CurrentPassword, request.NewPassword, callerRefresh), cancellationToken);
+        return NoContent();
     }
 }
