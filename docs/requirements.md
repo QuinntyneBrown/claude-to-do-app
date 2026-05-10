@@ -1,7 +1,7 @@
 # Tickbox — Requirements
 
-Author: `claude@M5` (R1)
-Status: draft, awaiting R2 evaluation
+Author: `claude@M5` (R1, R2)
+Status: approved (R2 pass 2 clean)
 Sources: `docs/idea.md`, accepted mocks under `mocks/`
 
 ## 1. Vision and scope
@@ -63,6 +63,13 @@ The backend MUST validate JWT issuer, audience, signature, and expiration on eve
 - AC1. Given a missing, expired, or tampered token, when used against any protected endpoint, then the response is HTTP 401.
 - AC2. Given a valid token, when used, then the request is authorised against the bearer's identity (no other identity is accessible).
 
+#### REQ-AUTH-7 — Password policy
+A "valid password" referenced by REQ-AUTH-1, REQ-AUTH-4, and REQ-ACCT-3 MUST meet the following policy and ONLY this policy:
+
+- AC1. Length ≥ 12 characters.
+- AC2. No further complexity rules (no required mixed case, no required digits, no required symbols, no banned-word list). Simplicity is intentional; length is the strength lever.
+- AC3. Maximum length 256 characters; longer inputs MUST be rejected with HTTP 400 / inline error.
+
 ### 3.2 To-dos (the product)
 
 Mocks: `todos.html`, `todo-detail.html`, `todos-empty.html`.
@@ -82,11 +89,15 @@ A signed-in user MUST be able to create a new to-do with a title, and optionally
 - AC4. Title MUST be 1–200 characters; notes MUST be 0–2000 characters. Out-of-range values MUST be rejected with HTTP 400 / inline error.
 
 #### REQ-TODO-3 — View the to-do list
-A signed-in user MUST see only their own to-dos, grouped by state, with filter chips for All / Incomplete / Complete.
+A signed-in user MUST see only their own to-dos, grouped by state, with filter chips for All / Incomplete / Complete. The page header shows the current date in the user's local timezone for context; the list itself shows the user's to-dos in their entirety, not filtered by date.
 
-- AC1. Given a user with at least one to-do, when they open the list, then to-dos are grouped under "Incomplete" and "Complete" headings, with a header summary "<n> of <m> complete" for the current day.
-- AC2. Given the user selects a filter chip, when chosen, then the list shows only to-dos matching that filter.
+- AC1. Given a user with at least one to-do, when they open the list, then to-dos are grouped under "Incomplete" and "Complete" headings, with a header summary "`<n>` of `<m>` complete" computed across **all** the user's to-dos (not date-scoped).
+- AC2. Given the user selects a filter chip, when chosen, then the list shows only to-dos matching that filter (`All`, `Incomplete`, or `Complete`).
 - AC3. Given a user signed in as account A, when they view the list, then to-dos owned by account B MUST NOT appear.
+- AC4. **Ordering.** Within each section, to-dos MUST be ordered by `due_date` ascending with nulls last, then by `created_at` descending (most recently created first). The same ordering applies under each filter chip. Ordering is computed server-side and is deterministic.
+
+#### REQ-TODO-3a — Page-header date label
+The list page header MUST display the current date in the user's local timezone, formatted as `<day-name>, <day> <month-name>` (e.g., `Today, 9 May`). This is informational only — it does not filter the list.
 
 #### REQ-TODO-4 — Edit a to-do
 A signed-in user MUST be able to edit the title, notes, due date, and state of a to-do they own.
@@ -112,6 +123,13 @@ When the signed-in user has no to-dos, the list MUST show the empty-state mock w
 
 - AC1. Given a user with zero to-dos, when they open the list, then the empty-state screen is shown with a single primary CTA ("Add a to-do") that opens the detail screen in create mode.
 
+#### REQ-TODO-8 — Activity strip on detail
+The to-do detail screen MUST show an activity strip with the to-do's lifecycle events.
+
+- AC1. The activity strip MUST contain at minimum a `Created` entry (timestamp the to-do was created) and, when applicable, a `Marked complete` entry (timestamp of the most recent transition to `Complete`). If the to-do is later set back to `Incomplete`, the existing `Marked complete` entry is removed.
+- AC2. Timestamps MUST be displayed in the user's local timezone, formatted `<day> <month-name>, <HH>:<MM>` (e.g., `8 May, 14:02`).
+- AC3. The activity strip is read-only; this requirement does NOT imply free-text comments, edit history, or any further auditing surface.
+
 ### 3.3 Account management
 
 Mocks: `profile.html`.
@@ -120,10 +138,11 @@ Mocks: `profile.html`.
 A signed-in user MUST see their display name, email, and avatar on the profile screen.
 
 #### REQ-ACCT-2 — Update display name and email
-A signed-in user MUST be able to change their display name. Changing the email MUST require re-verification (a verification link sent to the new address) before becoming effective; the original email remains the active sign-in identifier until verified.
+A signed-in user MUST be able to change their display name and request an email change.
 
 - AC1. Given a user changes their display name, when they save, then the new name is reflected on the profile screen and in the top app bar avatar tooltip.
-- AC2. Given a user changes their email, when they save, then a verification link is sent to the new address; until verified, the original email remains the sign-in identifier.
+- AC2. Given a user requests an email change, when they save, then the system sends a verification link to the new address (delivery via the no-op logging email service in v1; the contract is preserved for a real provider). Until the new address is verified by following the link, the original email remains the sign-in identifier and the profile screen MUST show an inline banner "Pending email change to `<new-email>` — check your inbox" with a "Cancel" action. No new mock screen is required for this banner; it appears in the existing profile surface.
+- AC3. Given the verification link is followed within its expiry window, when accepted, then the new email becomes the sign-in identifier and the banner is removed.
 
 #### REQ-ACCT-3 — Change password
 A signed-in user MUST be able to change their password from the profile screen, using their current password and a new password meeting policy.
