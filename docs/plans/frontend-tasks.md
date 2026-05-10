@@ -28,7 +28,7 @@ These are not repeated per task to avoid noise:
 
 ## Tasks
 
-### F-001 — Sign up
+### F-001 — Sign up — **done** (see `docs/evaluations/FI1-F001.md`)
 
 - **Implements:** REQ-AUTH-1, REQ-AUTH-7. Mock: `mocks/sign-up.html`.
 - **Slice contents:**

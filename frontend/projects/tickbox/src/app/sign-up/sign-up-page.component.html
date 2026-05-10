@@ -1,0 +1,14 @@
+<main class="sign-up-page">
+  <tb-brand-icon class="sign-up-page__brand" label="Tickbox"></tb-brand-icon>
+
+  <section class="sign-up-page__card">
+    <h1 class="sign-up-page__title">Create your account</h1>
+    <p class="sign-up-page__subtitle">A radically simple to-do list. Two states, zero clutter.</p>
+
+    <tb-sign-up-form (signedUp)="onSignedUp($event)"></tb-sign-up-form>
+
+    <p class="sign-up-page__footer">
+      Already have an account? <a routerLink="/sign-in">Sign in</a>
+    </p>
+  </section>
+</main>

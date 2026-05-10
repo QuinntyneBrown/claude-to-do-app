@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
+import { RegisterRequest } from './register-request';
 
 export interface SignInRequest {
   readonly email: string;
@@ -12,6 +13,7 @@ export interface SignInResponse {
 }
 
 export interface IAuthService {
+  register(request: RegisterRequest): Observable<SignInResponse>;
   signIn(request: SignInRequest): Observable<SignInResponse>;
 }
 

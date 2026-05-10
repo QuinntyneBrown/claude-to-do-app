@@ -1,0 +1,48 @@
+<form class="sign-up-form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline" class="sign-up-form__field">
+    <mat-label>Display name</mat-label>
+    <input
+      matInput
+      name="displayName"
+      autocomplete="name"
+      data-testid="display-name-input"
+      [(ngModel)]="displayName" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="sign-up-form__field">
+    <mat-label>Email</mat-label>
+    <input
+      matInput
+      name="email"
+      type="email"
+      autocomplete="email"
+      data-testid="email-input"
+      [(ngModel)]="email" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="sign-up-form__field">
+    <mat-label>Password</mat-label>
+    <input
+      matInput
+      name="password"
+      type="password"
+      autocomplete="new-password"
+      data-testid="password-input"
+      [(ngModel)]="password" />
+    <mat-hint>Must be at least 12 characters.</mat-hint>
+  </mat-form-field>
+
+  @if (error()) {
+    <p class="sign-up-form__error" data-testid="sign-up-error">{{ error() }}</p>
+  }
+
+  <button
+    mat-flat-button
+    color="primary"
+    type="submit"
+    class="sign-up-form__submit"
+    data-testid="sign-up-submit"
+    [disabled]="submitting()">
+    {{ submitting() ? 'Creating account…' : 'Create account' }}
+  </button>
+</form>
