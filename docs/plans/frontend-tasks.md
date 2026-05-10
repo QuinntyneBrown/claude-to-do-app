@@ -1,7 +1,7 @@
 # Tickbox frontend — vertically sliced tasks (FT1)
 
-Author: `claude@M5` (FT1)
-Status: draft, awaiting FT2 evaluation
+Author: `claude@M5` (FT1, FT2)
+Status: approved (FT2 pass 2 clean)
 Inputs: `docs/plans/frontend.md` (approved), `docs/plans/backend-tasks.md` (B-001 → B-015 implemented), accepted mocks under `mocks/`, MF1 MVP under `frontend/`.
 
 This list takes every plan item from `docs/plans/frontend.md` and decomposes it into vertical UI slices. **Every task ships end-to-end:** route(s) → page component(s) (`tickbox`) → domain component(s) (`domain`) consuming `*.service.contract.ts` from `api` → concrete service implementation in `api` → backend wire-up against the live B-001..B-015 endpoints → Playwright POM page-object + spec. Every slice respects the §3.0 conventions from `frontend.md`: one-type-per-file with separate `.html`/`.scss`/`.ts`, `tb-` selectors, BEM CSS, Material 3 primitives only, system-token colour/type/shape, standalone OnPush components, `@if` / `@for` / `@switch` control flow, injection-token service consumption, `data-testid` only when read by a POM.
