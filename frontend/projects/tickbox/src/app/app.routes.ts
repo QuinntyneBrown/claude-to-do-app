@@ -20,6 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./password-reset/complete-password-reset-page.component').then(m => m.CompletePasswordResetPageComponent)
   },
   {
+    path: 'oidc/callback',
+    loadComponent: () => import('./oidc/oidc-callback-page.component').then(m => m.OidcCallbackPageComponent)
+  },
+  {
     path: 'todos',
     canActivate: [authGuard],
     loadComponent: () => import('./todos/todos-page.component').then(m => m.TodosPageComponent)

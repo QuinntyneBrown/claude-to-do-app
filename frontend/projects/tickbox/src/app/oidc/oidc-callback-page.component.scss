@@ -1,0 +1,14 @@
+:host { display: block; }
+
+.oidc-callback-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mat-sys-surface);
+}
+
+.oidc-callback-page__status {
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface-variant);
+}

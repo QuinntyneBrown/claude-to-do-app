@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { AUTH_SERVICE, IAuthService } from 'api';
 
 @Component({
   selector: 'tb-oidc-sign-in-button',
@@ -11,13 +12,27 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OidcSignInButtonComponent {
+  protected readonly submitting = signal(false);
+
+  constructor(@Inject(AUTH_SERVICE) private readonly authService: IAuthService) {}
+
   protected get enabled(): boolean {
     return typeof window !== 'undefined'
       && (window as unknown as { __TICKBOX_OIDC_ENABLED__?: boolean }).__TICKBOX_OIDC_ENABLED__ === true;
   }
 
   protected beginOidc(): void {
-    // Wired in F-004; the button only renders the call-to-action here.
-    void this.enabled;
+    if (this.submitting() || !this.enabled) {
+      return;
+    }
+    this.submitting.set(true);
+    this.authService.beginOidcSignIn().subscribe({
+      next: result => {
+        window.location.assign(result.authorizationUrl);
+      },
+      error: () => {
+        this.submitting.set(false);
+      }
+    });
   }
 }

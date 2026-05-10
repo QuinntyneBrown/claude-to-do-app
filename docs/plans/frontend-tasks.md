@@ -66,7 +66,7 @@ These are not repeated per task to avoid noise:
   - **Page objects:** `PasswordResetRequestPage.ts`, `PasswordResetCompletePage.ts`.
   - **Spec:** `password-reset.spec.ts` — `Request_password_reset_shows_inline_confirmation_for_any_email`, `Complete_password_reset_with_valid_token_signs_in`, `Complete_password_reset_with_expired_token_shows_inline_error`.
 
-### F-004 — OIDC PKCE sign-in (callback)
+### F-004 — OIDC PKCE sign-in (callback) — **done** (see `docs/evaluations/FI1-F004.md`)
 
 - **Implements:** REQ-AUTH-3 AC1.
 - **Depends on:** F-002 (`OidcSignInButtonComponent`).

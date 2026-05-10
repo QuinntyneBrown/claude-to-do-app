@@ -9,17 +9,6 @@ test.describe('OIDC sign-in — F-004', () => {
   test('Begin_oidc_redirects_to_authorization_url', async ({ page }) => {
     await page.addInitScript(() => {
       (window as unknown as { __TICKBOX_OIDC_ENABLED__?: boolean }).__TICKBOX_OIDC_ENABLED__ = true;
-      (window as unknown as { __TICKBOX_OIDC_REDIRECTS__?: string[] }).__TICKBOX_OIDC_REDIRECTS__ = [];
-      const w = window as unknown as { __TICKBOX_OIDC_REDIRECTS__: string[] };
-      const original = window.location.assign.bind(window.location);
-      Object.defineProperty(window.location, 'assign', {
-        configurable: true,
-        value: (url: string) => {
-          w.__TICKBOX_OIDC_REDIRECTS__.push(url);
-          // Don't actually navigate.
-        }
-      });
-      void original;
     });
 
     await page.route(`${apiOrigin}/api/auth/oidc/authorize`, async (route: Route) => {
@@ -33,15 +22,44 @@ test.describe('OIDC sign-in — F-004', () => {
       });
     });
 
+    // Intercept the IdP URL the app would otherwise navigate to so the test
+    // doesn't actually leave the origin; fulfill with a placeholder page.
+    await page.route('https://idp.test/**', async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html',
+        body: '<html><body>IdP login</body></html>'
+      });
+    });
+
+    await page.route(`${apiOrigin}/api/auth/oidc/authorize`, async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          authorizationUrl: 'https://idp.test/authorize?client_id=tickbox&state=abc',
+          state: 'abc'
+        })
+      });
+    });
+
+    // Intercept the IdP URL the app would otherwise navigate to so the test
+    // doesn't actually leave the origin; fulfill with a placeholder page.
+    await page.route('https://idp.test/**', async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html',
+        body: '<html><body>IdP login</body></html>'
+      });
+    });
+
     const signIn = new SignInPage(page);
     await signIn.goto();
+    await expect(signIn.oidcButton).toBeVisible();
     await signIn.oidcButton.click();
-
-    const redirects = await page.evaluate(() =>
-      (window as unknown as { __TICKBOX_OIDC_REDIRECTS__?: string[] }).__TICKBOX_OIDC_REDIRECTS__ ?? []
-    );
-    expect(redirects).toHaveLength(1);
-    expect(redirects[0]).toContain('https://idp.test/authorize');
+    await expect.poll(() => page.url(), { timeout: 5_000 }).toContain('idp.test');
+    expect(page.url()).toContain('https://idp.test/authorize');
+    expect(page.url()).toContain('client_id=tickbox');
   });
 
   test('Callback_with_valid_code_signs_in_and_routes_to_todos', async ({ page }) => {
