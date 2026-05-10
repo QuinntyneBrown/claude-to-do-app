@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickbox.Application.Todos.CreateTodo;
+using Tickbox.Application.Todos.DeleteTodo;
 using Tickbox.Application.Todos.GetTodoById;
 using Tickbox.Application.Todos.GetTodos;
 using Tickbox.Application.Todos.ToggleTodoStatus;
@@ -60,5 +61,12 @@ public sealed class TodosController : ControllerBase
 
         var detail = await _mediator.Send(new ToggleTodoStatusCommand(id, status), cancellationToken);
         return Ok(detail);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new DeleteTodoCommand(id), cancellationToken);
+        return NoContent();
     }
 }

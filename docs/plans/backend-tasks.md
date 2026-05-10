@@ -167,7 +167,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `TodosController.ToggleStatus` (`PATCH /api/todos/{id:guid}/status`).
   - **Acceptance tests:** `Toggle_to_complete_sets_CompletedAt_and_writes_activity`, `Toggle_back_to_incomplete_clears_CompletedAt_and_removes_activity`, `Toggle_with_invalid_status_returns_400`.
 
-### B-014 — Todo: delete
+### B-014 — Todo: delete — **done** (see `docs/evaluations/BI1-B014.md`)
 
 - **Implements:** REQ-TODO-6.
 - **Depends on:** B-010 (cascade includes activity rows).
