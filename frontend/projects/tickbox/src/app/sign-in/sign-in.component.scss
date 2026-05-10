@@ -59,6 +59,29 @@
   align-self: stretch;
 }
 
+.sign-in__forgot {
+  align-self: flex-end;
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+}
+
+.sign-in__forgot:hover,
+.sign-in__forgot:focus-visible {
+  text-decoration: underline;
+}
+
+.sign-in__oidc {
+  margin-top: 16px;
+}
+
+.sign-in__footer {
+  margin: 24px 0 0;
+  text-align: center;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
 @media (min-width: 600px) {
   .sign-in {
     padding: 48px 24px;

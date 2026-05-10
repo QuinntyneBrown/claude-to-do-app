@@ -28,9 +28,14 @@
           [(ngModel)]="password" />
       </mat-form-field>
 
-      @if (error()) {
-        <p class="sign-in__error" data-testid="sign-in-error">{{ error() }}</p>
-      }
+      <a
+        class="sign-in__forgot"
+        data-testid="forgot-password-link"
+        routerLink="/password-reset/request">
+        Forgot password?
+      </a>
+
+      <tb-error-banner [message]="error()" testId="sign-in-error"></tb-error-banner>
 
       <button
         mat-flat-button
@@ -42,5 +47,11 @@
         {{ submitting() ? 'Signing in…' : 'Sign in' }}
       </button>
     </form>
+
+    <tb-oidc-sign-in-button class="sign-in__oidc"></tb-oidc-sign-in-button>
+
+    <p class="sign-in__footer">
+      New to Tickbox? <a routerLink="/sign-up">Create an account</a>
+    </p>
   </section>
 </main>

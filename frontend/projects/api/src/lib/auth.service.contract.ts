@@ -15,6 +15,7 @@ export interface SignInResponse {
 export interface IAuthService {
   register(request: RegisterRequest): Observable<SignInResponse>;
   signIn(request: SignInRequest): Observable<SignInResponse>;
+  refreshAccessToken(): Observable<SignInResponse>;
 }
 
 export const AUTH_SERVICE = new InjectionToken<IAuthService>('Tickbox.IAuthService');

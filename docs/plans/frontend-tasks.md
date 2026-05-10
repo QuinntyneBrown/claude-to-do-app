@@ -41,7 +41,7 @@ These are not repeated per task to avoid noise:
   - **Spec:** `e2e/specs/sign-up.spec.ts` — `Sign_up_with_valid_input_creates_account_and_routes_to_todos`, `Sign_up_with_password_under_12_chars_shows_inline_error`.
 - **Specific guidance:** Auth §"local username/password" + REQ-AUTH-7 client-side hint mirrors backend rule.
 
-### F-002 — Sign-in extension + token refresh interceptor
+### F-002 — Sign-in extension + token refresh interceptor — **done** (see `docs/evaluations/FI1-F002.md`)
 
 - **Implements:** REQ-AUTH-2, REQ-AUTH-3 AC2 (SSO button hidden when env-disabled), REQ-NFR-6 (refresh in HttpOnly cookie). Mock: `mocks/sign-in.html`.
 - **Depends on:** F-001 (`AuthStateService` patterns + the now-extended auth contract).

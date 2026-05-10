@@ -4,9 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AUTH_SERVICE, IAuthService } from 'api';
-import { BrandIconComponent } from 'components';
+import { BrandIconComponent, ErrorBannerComponent } from 'components';
+import { OidcSignInButtonComponent } from 'domain';
 import { AuthStateService } from '../auth/auth-state.service';
 
 @Component({
@@ -18,7 +19,10 @@ import { AuthStateService } from '../auth/auth-state.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressBarModule,
-    BrandIconComponent
+    RouterLink,
+    BrandIconComponent,
+    ErrorBannerComponent,
+    OidcSignInButtonComponent
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',

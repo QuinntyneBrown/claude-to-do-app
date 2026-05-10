@@ -19,4 +19,8 @@ export class AuthService implements IAuthService {
   signIn(request: SignInRequest): Observable<SignInResponse> {
     return this.http.post<SignInResponse>(`${this.config.baseUrl}/api/auth/sign-in`, request);
   }
+
+  refreshAccessToken(): Observable<SignInResponse> {
+    return this.http.post<SignInResponse>(`${this.config.baseUrl}/api/auth/refresh`, {}, { withCredentials: true });
+  }
 }

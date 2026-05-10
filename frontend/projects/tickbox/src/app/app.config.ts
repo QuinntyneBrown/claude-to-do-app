@@ -4,6 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter } from '@angular/router';
 import { API_CONFIG, AUTH_SERVICE, AuthService, TODOS_SERVICE, TodosService } from 'api';
 import { authInterceptor } from './auth/auth.interceptor';
+import { tokenRefreshInterceptor } from './auth/token-refresh.interceptor';
 import { routes } from './app.routes';
 
 const environmentApiBaseUrl =
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, tokenRefreshInterceptor])),
     { provide: API_CONFIG, useValue: { baseUrl: environmentApiBaseUrl } },
     { provide: AUTH_SERVICE, useClass: AuthService },
     { provide: TODOS_SERVICE, useClass: TodosService }
