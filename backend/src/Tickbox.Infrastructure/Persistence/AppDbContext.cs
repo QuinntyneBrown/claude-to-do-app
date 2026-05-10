@@ -17,6 +17,7 @@ public sealed class AppDbContext : DbContext, IAppDbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<OidcAuthorizationRequest> OidcAuthorizationRequests => Set<OidcAuthorizationRequest>();
+    public DbSet<TodoActivityEntry> TodoActivityEntries => Set<TodoActivityEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,9 +38,19 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             b.ToTable("Todos");
             b.HasKey(t => t.Id);
             b.Property(t => t.Title).IsRequired().HasMaxLength(200);
+            b.Property(t => t.Notes).HasMaxLength(2000);
             b.Property(t => t.Status).HasConversion<int>();
             b.HasIndex(t => new { t.UserId, t.CreatedAt });
             b.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TodoActivityEntry>(b =>
+        {
+            b.ToTable("TodoActivityEntries");
+            b.HasKey(a => a.Id);
+            b.Property(a => a.Kind).HasConversion<int>();
+            b.HasIndex(a => new { a.TodoId, a.OccurredAt });
+            b.HasOne<Todo>().WithMany().HasForeignKey(a => a.TodoId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Role>(b =>

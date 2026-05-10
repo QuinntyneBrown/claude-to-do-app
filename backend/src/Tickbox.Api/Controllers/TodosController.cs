@@ -28,7 +28,7 @@ public sealed class TodosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CreateTodoResult>> Create([FromBody] CreateTodoRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new CreateTodoCommand(request.Title), cancellationToken);
+        var result = await _mediator.Send(new CreateTodoCommand(request.Title, request.Notes, request.DueDate), cancellationToken);
         return CreatedAtAction(nameof(GetAll), new { }, result);
     }
 }

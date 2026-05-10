@@ -130,7 +130,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `AccountController.DeleteMyAccount` (`DELETE /api/account`).
   - **Acceptance tests:** `Delete_account_removes_user_and_all_owned_rows`, `Delete_account_invalidates_existing_access_jwt`.
 
-### B-010 — Todo: extend create with notes + due date + activity strip
+### B-010 — Todo: extend create with notes + due date + activity strip — **done** (see `docs/evaluations/BI1-B010.md`)
 
 - **Implements:** REQ-TODO-1, REQ-TODO-2 (full), REQ-TODO-8 partly (`Created` activity).
 - **Slice contents:**

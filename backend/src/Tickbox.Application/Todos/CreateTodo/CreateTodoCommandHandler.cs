@@ -19,18 +19,29 @@ public sealed class CreateTodoCommandHandler : IRequestHandler<CreateTodoCommand
 
     public async Task<CreateTodoResult> Handle(CreateTodoCommand request, CancellationToken cancellationToken)
     {
+        var now = _clock.GetUtcNow();
         var todo = new Todo
         {
             Id = Guid.NewGuid(),
             UserId = _currentUser.UserId,
             Title = request.Title.Trim(),
+            Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim(),
+            DueDate = request.DueDate,
             Status = TodoStatus.Incomplete,
-            CreatedAt = _clock.GetUtcNow()
+            CreatedAt = now
         };
 
         _db.Todos.Add(todo);
+        _db.TodoActivityEntries.Add(new TodoActivityEntry
+        {
+            Id = Guid.NewGuid(),
+            TodoId = todo.Id,
+            Kind = TodoActivityKind.Created,
+            OccurredAt = now
+        });
+
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new CreateTodoResult(todo.Id, todo.Title, todo.Status, todo.CreatedAt);
+        return new CreateTodoResult(todo.Id, todo.Title, todo.Notes, todo.DueDate, todo.Status, todo.CreatedAt);
     }
 }

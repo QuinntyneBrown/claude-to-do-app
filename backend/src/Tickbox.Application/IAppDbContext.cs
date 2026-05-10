@@ -14,5 +14,6 @@ public interface IAppDbContext
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
     DbSet<OidcAuthorizationRequest> OidcAuthorizationRequests { get; }
+    DbSet<TodoActivityEntry> TodoActivityEntries { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
