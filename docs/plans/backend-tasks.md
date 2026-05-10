@@ -176,7 +176,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `TodosController.Delete` (`DELETE /api/todos/{id:guid}`).
   - **Acceptance tests:** `Delete_todo_removes_row_and_cascades_activity`, `Delete_other_users_todo_returns_404`.
 
-### B-015 — Todo: list ordering rule
+### B-015 — Todo: list ordering rule — **done** (see `docs/evaluations/BI1-B015.md`)
 
 - **Implements:** REQ-TODO-3 AC4.
 - **Depends on:** B-010.

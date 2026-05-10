@@ -19,10 +19,13 @@ public sealed class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, IReadO
     {
         var userId = _currentUser.UserId;
 
+        // REQ-TODO-3 AC4: order by DueDate ascending with nulls last, then CreatedAt descending.
         return await _db.Todos
             .Where(t => t.UserId == userId)
-            .OrderByDescending(t => t.CreatedAt)
-            .Select(t => new TodoListItem(t.Id, t.Title, t.Status, t.CreatedAt, t.CompletedAt))
+            .OrderBy(t => t.DueDate == null)
+            .ThenBy(t => t.DueDate)
+            .ThenByDescending(t => t.CreatedAt)
+            .Select(t => new TodoListItem(t.Id, t.Title, t.Notes, t.DueDate, t.Status, t.CreatedAt, t.CompletedAt))
             .ToListAsync(cancellationToken);
     }
 }
