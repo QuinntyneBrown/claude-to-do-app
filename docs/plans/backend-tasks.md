@@ -121,7 +121,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `AccountController.ChangePassword` (`PUT /api/account/password`).
   - **Acceptance tests:** `Change_password_with_correct_current_persists_new_hash`, `Change_password_with_wrong_current_returns_400_and_audits`, `Change_password_revokes_other_sessions_only`.
 
-### B-009 — Account: delete account
+### B-009 — Account: delete account — **done** (see `docs/evaluations/BI1-B009.md`)
 
 - **Implements:** REQ-ACCT-4, REQ-NFR-4.
 - **Slice contents:**

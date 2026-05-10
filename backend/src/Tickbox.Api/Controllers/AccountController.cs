@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tickbox.Api.Auth;
 using Tickbox.Application.Account;
 using Tickbox.Application.Account.ChangePassword;
+using Tickbox.Application.Account.DeleteAccount;
 using Tickbox.Application.Account.EmailChange;
 using Tickbox.Application.Account.GetMyProfile;
 using Tickbox.Application.Account.UpdateDisplayName;
@@ -62,6 +63,13 @@ public sealed class AccountController : ControllerBase
     {
         var callerRefresh = RefreshTokenCookie.Read(Request);
         await _mediator.Send(new ChangePasswordCommand(request.CurrentPassword, request.NewPassword, callerRefresh), cancellationToken);
+        return NoContent();
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteMyAccount(CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new DeleteMyAccountCommand(), cancellationToken);
         return NoContent();
     }
 }
