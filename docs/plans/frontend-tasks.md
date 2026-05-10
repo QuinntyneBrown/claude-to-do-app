@@ -139,7 +139,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** extend `ProfilePage.ts` with `deleteAccountButton`, `deleteAccountConfirm`, `deleteAccountCancel`.
   - **Spec:** `profile-delete-account.spec.ts` — `Delete_account_confirm_signs_out_and_routes_to_sign_in`, `Delete_account_cancel_closes_dialog_without_deleting`.
 
-### F-010 — Error page + global error banner
+### F-010 — Error page + global error banner — **done** (see `docs/evaluations/FI1-F010.md`)
 
 - **Implements:** REQ-ERR-1, REQ-ERR-2. Mock: `mocks/error.html`.
 - **Depends on:** F-005 (`AppShellComponent`, `EmptyStateComponent`), F-002 (`ErrorBannerComponent`).
