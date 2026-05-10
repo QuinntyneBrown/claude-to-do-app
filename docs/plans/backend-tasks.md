@@ -149,7 +149,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `TodosController.GetById` (`GET /api/todos/{id:guid}`).
   - **Acceptance tests:** `Get_todo_by_id_returns_full_detail_including_activity`, `Get_todo_owned_by_other_user_returns_404`.
 
-### B-012 — Todo: update
+### B-012 — Todo: update — **done** (see `docs/evaluations/BI1-B012.md`)
 
 - **Implements:** REQ-TODO-4 (write leg).
 - **Depends on:** B-010.
