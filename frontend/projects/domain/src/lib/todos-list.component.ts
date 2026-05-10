@@ -43,9 +43,8 @@ export class TodosListComponent implements OnInit {
     this.todosService
       .list()
       .pipe(
-        catchError((err: unknown) => {
+        catchError(() => {
           this.error.set('Could not load to-dos. Sign in and try again.');
-          console.error(err);
           return of<Todo[]>([]);
         }),
         finalize(() => this.loading.set(false))
