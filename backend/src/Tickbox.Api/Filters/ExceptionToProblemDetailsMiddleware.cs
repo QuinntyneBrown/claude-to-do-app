@@ -49,7 +49,7 @@ public sealed class ExceptionToProblemDetailsMiddleware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception");
-            await WriteAsync(context, StatusCodes.Status500InternalServerError, "Server error", "DEBUG: " + ex.GetType().FullName + ": " + ex.Message);
+            await WriteAsync(context, StatusCodes.Status500InternalServerError, "Server error", "An unexpected error occurred.");
         }
     }
 
@@ -67,7 +67,6 @@ public sealed class ExceptionToProblemDetailsMiddleware
     private static async Task WriteProblemAsync(HttpContext context, ProblemDetails problem, int statusCode)
     {
         context.Response.StatusCode = statusCode;
-        context.Response.ContentType = "application/problem+json";
-        await context.Response.WriteAsJsonAsync(problem);
+        await context.Response.WriteAsJsonAsync(problem, options: null, contentType: "application/problem+json");
     }
 }

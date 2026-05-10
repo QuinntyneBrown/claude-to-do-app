@@ -31,8 +31,7 @@ public sealed class SampleSliceAcceptanceTests : IClassFixture<TickboxApiFactory
             displayName = "Ada Lovelace",
             password = "correct-horse-battery-staple"
         });
-        var registerBody = await register.Content.ReadAsStringAsync();
-        register.StatusCode.Should().Be(HttpStatusCode.OK, "register body was: " + registerBody);
+        register.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var registerPayload = await register.Content.ReadFromJsonAsync<RegisterUserResult>();
         registerPayload.Should().NotBeNull();

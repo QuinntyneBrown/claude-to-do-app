@@ -21,11 +21,7 @@ public sealed class TickboxApiFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:Default"] = "InMemory",
-                ["Jwt:Issuer"] = "https://tickbox.test",
-                ["Jwt:Audience"] = "tickbox-api-test",
-                ["Jwt:SigningKey"] = "test-only-signing-key-with-enough-bytes-to-satisfy-hmac-sha256",
-                ["Jwt:AccessTokenLifetimeMinutes"] = "60"
+                ["ConnectionStrings:Default"] = "InMemory"
             });
         });
 
