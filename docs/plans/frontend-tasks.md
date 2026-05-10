@@ -151,7 +151,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** `ErrorPage.ts`.
   - **Spec:** `error-state.spec.ts` — `Network_failure_during_todos_load_renders_error_state_with_retry`, `Retry_button_re_attempts_the_failed_request`, `Form_input_is_preserved_when_retrying_after_5xx`.
 
-### F-011 — Responsive sweep + mock-fidelity verification
+### F-011 — Responsive sweep + mock-fidelity verification — **done** (see `docs/evaluations/FI1-F011.md`)
 
 - **Implements:** REQ-NFR-1, REQ-NFR-2, REQ-NFR-7 (touch targets ≥ 48dp), and the FI1 per-slice "Verify the slice visually matches the mock at 360 / 768 / 1440" requirement folded into a final pass.
 - **Depends on:** every prior F-* slice.
