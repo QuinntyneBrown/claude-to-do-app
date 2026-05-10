@@ -6,6 +6,7 @@
     class="todo-list-item__checkbox"
     data-testid="todo-checkbox"
     [checked]="todo.status === 'Complete'"
+    [aria-label]="(todo.status === 'Complete' ? 'Mark incomplete: ' : 'Mark complete: ') + todo.title"
     (change)="onCheckboxChange()">
   </mat-checkbox>
   <div class="todo-list-item__body">
