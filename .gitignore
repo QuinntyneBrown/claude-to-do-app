@@ -1,0 +1,18 @@
+# Claude Code local state
+.claude/
+
+# .NET build output
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+.vs/
+
+# Rider / Visual Studio
+.idea/
+*.DotSettings.user
+
+# Environment / secrets
+*.env
+appsettings.*.local.json

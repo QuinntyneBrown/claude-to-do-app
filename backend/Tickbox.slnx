@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tickbox.Api/Tickbox.Api.csproj" />
+    <Project Path="src/Tickbox.Application/Tickbox.Application.csproj" />
+    <Project Path="src/Tickbox.Domain/Tickbox.Domain.csproj" />
+    <Project Path="src/Tickbox.Infrastructure/Tickbox.Infrastructure.csproj" />
+    <Project Path="tests/Tickbox.Api.Tests/Tickbox.Api.Tests.csproj" />
+  </Folder>
+</Solution>

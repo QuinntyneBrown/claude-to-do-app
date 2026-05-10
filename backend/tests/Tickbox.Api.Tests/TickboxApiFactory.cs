@@ -1,0 +1,45 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Tickbox.Infrastructure.Persistence;
+
+namespace Tickbox.Api.Tests;
+
+public sealed class TickboxApiFactory : WebApplicationFactory<Program>
+{
+    private readonly string _databaseName = $"tickbox-tests-{Guid.NewGuid():N}";
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.UseEnvironment("Testing");
+
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:Default"] = "InMemory",
+                ["Jwt:Issuer"] = "https://tickbox.test",
+                ["Jwt:Audience"] = "tickbox-api-test",
+                ["Jwt:SigningKey"] = "test-only-signing-key-with-enough-bytes-to-satisfy-hmac-sha256",
+                ["Jwt:AccessTokenLifetimeMinutes"] = "60"
+            });
+        });
+
+        builder.ConfigureServices(services =>
+        {
+            services.RemoveAll<DbContextOptions<AppDbContext>>();
+            services.RemoveAll<DbContextOptions>();
+            services.RemoveAll<AppDbContext>();
+
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseInMemoryDatabase(_databaseName);
+                options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+            });
+        });
+    }
+}
