@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tickbox.Application.Todos.CreateTodo;
 using Tickbox.Application.Todos.GetTodoById;
 using Tickbox.Application.Todos.GetTodos;
+using Tickbox.Application.Todos.ToggleTodoStatus;
 using Tickbox.Application.Todos.UpdateTodo;
 
 namespace Tickbox.Api.Controllers;
@@ -45,6 +46,19 @@ public sealed class TodosController : ControllerBase
     public async Task<ActionResult<TodoDetail>> Update(Guid id, [FromBody] UpdateTodoRequest request, CancellationToken cancellationToken)
     {
         var detail = await _mediator.Send(new UpdateTodoCommand(id, request.Title, request.Notes, request.DueDate), cancellationToken);
+        return Ok(detail);
+    }
+
+    [HttpPatch("{id:guid}/status")]
+    public async Task<ActionResult<TodoDetail>> ToggleStatus(Guid id, [FromBody] ToggleTodoStatusRequest request, CancellationToken cancellationToken)
+    {
+        if (!Enum.TryParse<Tickbox.Domain.TodoStatus>(request.Status, ignoreCase: false, out var status)
+            || !Enum.IsDefined(typeof(Tickbox.Domain.TodoStatus), status))
+        {
+            throw new Tickbox.Application.Common.ValidationFailureException("status", "Status must be Incomplete or Complete.");
+        }
+
+        var detail = await _mediator.Send(new ToggleTodoStatusCommand(id, status), cancellationToken);
         return Ok(detail);
     }
 }

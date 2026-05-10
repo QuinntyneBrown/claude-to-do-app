@@ -158,7 +158,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** `TodosController.Update` (`PUT /api/todos/{id:guid}`).
   - **Acceptance tests:** `Update_todo_persists_new_fields`, `Update_todo_does_not_change_status`, `Update_other_users_todo_returns_404`.
 
-### B-013 — Todo: toggle status (with activity strip)
+### B-013 — Todo: toggle status (with activity strip) — **done** (see `docs/evaluations/BI1-B013.md`)
 
 - **Implements:** REQ-TODO-1, REQ-TODO-5, REQ-TODO-8.
 - **Depends on:** B-010.
