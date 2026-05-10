@@ -92,7 +92,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance tests** (env: `Oidc:Enabled = true` with a fake `IOidcClient` registered in the test factory): `Begin_oidc_returns_authorization_url_and_persists_state`, `Complete_oidc_first_time_provisions_user_with_role_and_no_password`, `Complete_oidc_returning_user_signs_in_without_provisioning`. Plus one disabled-env test: `Oidc_endpoints_return_404_when_disabled`.
 - **Specific guidance rules:** Auth §"PKCE-based OAuth 2.0 / OIDC authorization code flow against an external identity provider".
 
-### B-006 — Account: get profile + update display name
+### B-006 — Account: get profile + update display name — **done** (see `docs/evaluations/BI1-B006.md`)
 
 - **Implements:** REQ-ACCT-1, REQ-ACCT-2 AC1.
 - **Slice contents:**
