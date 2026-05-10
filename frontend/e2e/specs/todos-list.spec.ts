@@ -107,6 +107,28 @@ test.describe('Todos list — F-005', () => {
     expect(text).toMatch(/Today,\s+\d{1,2}\s+\w+/);
   });
 
+  test('Filter_to_state_with_zero_items_renders_empty_filter_state', async ({ page }) => {
+    await signedIn(page);
+    await page.route(`${apiOrigin}/api/todos`, async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          todoSeed({ title: 'finished B', status: 'Complete' })
+        ])
+      });
+    });
+
+    const todos = new TodosListPage(page);
+    await page.goto('/todos');
+    await todos.expectVisible();
+
+    await todos.filterIncomplete.click();
+    await expect(todos.incompleteItems).toHaveCount(0);
+    await expect(todos.completeItems).toHaveCount(0);
+    await expect(page.getByTestId('todos-filter-empty-state')).toBeVisible();
+  });
+
   test('Tapping_checkbox_in_list_moves_todo_between_sections', async ({ page }) => {
     await signedIn(page);
 

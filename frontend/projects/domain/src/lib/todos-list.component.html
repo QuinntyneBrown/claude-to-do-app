@@ -43,6 +43,13 @@
         supportingText="Add your first to-do and it'll show up here. A to-do is either Incomplete or Complete — that's it."
         testId="todos-empty-state">
       </tb-empty-state>
+    } @else if (visibleIncomplete().length === 0 && visibleComplete().length === 0) {
+      <tb-empty-state
+        icon="filter_list_off"
+        [title]="filter() === 'incomplete' ? 'Nothing incomplete' : 'Nothing complete'"
+        [supportingText]="filter() === 'incomplete' ? 'Every to-do you have is already complete.' : 'You have no completed to-dos yet.'"
+        testId="todos-filter-empty-state">
+      </tb-empty-state>
     } @else {
       @if (visibleIncomplete().length > 0) {
         <h3 class="todos-list__section-title">Incomplete</h3>
