@@ -1,0 +1,113 @@
+name: Deploy
+
+on:
+  push:
+    branches: [deploy]
+  workflow_dispatch:
+
+env:
+  AZURE_RESOURCE_GROUP: tickbox-rg
+  AZURE_WEBAPP_NAME: tickbox-api
+  AZURE_STATIC_WEB_APP_NAME: tickbox-web
+  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '20'
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore backend/Tickbox.sln
+
+      - name: Build
+        run: dotnet build backend/Tickbox.sln --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test backend/Tickbox.sln --configuration Release --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish backend/src/Tickbox.Api/Tickbox.Api.csproj --configuration Release --no-build --output ${{ github.workspace }}/publish
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend
+          path: ${{ github.workspace }}/publish
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build libraries
+        working-directory: frontend
+        run: |
+          npx ng build api
+          npx ng build components
+          npx ng build domain
+
+      - name: Build app
+        working-directory: frontend
+        run: npx ng build tickbox --configuration production
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: frontend/dist/tickbox/browser
+
+  deploy-backend:
+    needs: build-backend
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend
+          path: publish
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: publish
+
+  deploy-frontend:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend
+          path: frontend/dist/tickbox/browser
+
+      - name: Deploy to Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: 'frontend/dist/tickbox/browser'
+          skip_app_build: true
+          skip_api_build: true
