@@ -1,6 +1,6 @@
 import { test, expect, Route } from '@playwright/test';
 import { SignInPage } from '../page-objects/sign-in.page';
-import { TodosPage } from '../page-objects/todos.page';
+import { TodosListPage } from '../page-objects/todos-list.page';
 
 const apiOrigin = 'http://localhost:5217';
 
@@ -22,7 +22,7 @@ test.describe('Sign in — F-002', () => {
     });
 
     const signIn = new SignInPage(page);
-    const todos = new TodosPage(page);
+    const todos = new TodosListPage(page);
     await signIn.goto();
     await signIn.signIn('ada@example.com', 'correct-horse-battery-staple');
     await todos.expectVisible();
@@ -100,12 +100,12 @@ test.describe('Sign in — F-002', () => {
     });
 
     const signIn = new SignInPage(page);
-    const todos = new TodosPage(page);
+    const todos = new TodosListPage(page);
     await signIn.goto();
     await signIn.signIn('ada@example.com', 'correct-horse-battery-staple');
     await todos.expectVisible();
 
-    expect(refreshCalls).toBe(1);
-    expect(listCalls).toBeGreaterThanOrEqual(2);
+    await expect.poll(() => refreshCalls, { timeout: 5_000 }).toBe(1);
+    await expect.poll(() => listCalls, { timeout: 5_000 }).toBeGreaterThanOrEqual(2);
   });
 });

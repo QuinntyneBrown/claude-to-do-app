@@ -1,0 +1,17 @@
+<li
+  class="todo-list-item"
+  [class.todo-list-item--complete]="todo.status === 'Complete'"
+  [attr.data-testid]="testId">
+  <mat-checkbox
+    class="todo-list-item__checkbox"
+    data-testid="todo-checkbox"
+    [checked]="todo.status === 'Complete'"
+    (change)="onCheckboxChange()">
+  </mat-checkbox>
+  <div class="todo-list-item__body">
+    <p class="todo-list-item__title">{{ todo.title }}</p>
+    @if (dueLabel) {
+      <p class="todo-list-item__due">{{ dueLabel }}</p>
+    }
+  </div>
+</li>

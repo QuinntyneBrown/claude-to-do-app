@@ -1,0 +1,10 @@
+<section class="empty-state" [class.empty-state--error]="variant === 'error'" [attr.data-testid]="testId">
+  <span class="empty-state__icon">
+    <mat-icon aria-hidden="true">{{ icon }}</mat-icon>
+  </span>
+  <h2 class="empty-state__title">{{ title }}</h2>
+  @if (supportingText) {
+    <p class="empty-state__supporting">{{ supportingText }}</p>
+  }
+  <ng-content></ng-content>
+</section>

@@ -1,6 +1,6 @@
 import { test, expect, Route } from '@playwright/test';
 import { SignUpPage } from '../page-objects/sign-up.page';
-import { TodosPage } from '../page-objects/todos.page';
+import { TodosListPage } from '../page-objects/todos-list.page';
 
 const apiOrigin = 'http://localhost:5217';
 
@@ -26,7 +26,7 @@ test.describe('Sign up — F-001', () => {
     });
 
     const signUp = new SignUpPage(page);
-    const todos = new TodosPage(page);
+    const todos = new TodosListPage(page);
 
     await signUp.goto();
     await signUp.signUp('Ada Lovelace', 'ada@example.com', 'correct-horse-battery-staple');

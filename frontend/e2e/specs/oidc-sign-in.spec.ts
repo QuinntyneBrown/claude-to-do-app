@@ -1,7 +1,7 @@
 import { test, expect, Route } from '@playwright/test';
 import { SignInPage } from '../page-objects/sign-in.page';
 import { OidcCallbackPage } from '../page-objects/oidc-callback.page';
-import { TodosPage } from '../page-objects/todos.page';
+import { TodosListPage } from '../page-objects/todos-list.page';
 
 const apiOrigin = 'http://localhost:5217';
 
@@ -75,7 +75,7 @@ test.describe('OIDC sign-in — F-004', () => {
     });
 
     const callback = new OidcCallbackPage(page);
-    const todos = new TodosPage(page);
+    const todos = new TodosListPage(page);
     await callback.goto('idp-code', 'abc');
     await todos.expectVisible();
   });

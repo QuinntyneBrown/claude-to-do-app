@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
-import { BrandIconComponent } from 'components';
+import { RouterLink } from '@angular/router';
+import { AppShellComponent, AppShellNavItem } from 'components';
 import { TodosListComponent } from 'domain';
-import { AuthStateService } from '../auth/auth-state.service';
 
 @Component({
   selector: 'tb-todos-page',
@@ -13,8 +11,8 @@ import { AuthStateService } from '../auth/auth-state.service';
   imports: [
     MatButtonModule,
     MatIconModule,
-    MatToolbarModule,
-    BrandIconComponent,
+    RouterLink,
+    AppShellComponent,
     TodosListComponent
   ],
   templateUrl: './todos-page.component.html',
@@ -22,13 +20,8 @@ import { AuthStateService } from '../auth/auth-state.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TodosPageComponent {
-  constructor(
-    private readonly authState: AuthStateService,
-    private readonly router: Router
-  ) {}
-
-  protected signOut(): void {
-    this.authState.signOut();
-    void this.router.navigateByUrl('/sign-in');
-  }
+  protected readonly navItems: readonly AppShellNavItem[] = [
+    { label: 'To-dos', icon: 'checklist', route: '/todos' },
+    { label: 'Profile', icon: 'person', route: '/profile' }
+  ];
 }

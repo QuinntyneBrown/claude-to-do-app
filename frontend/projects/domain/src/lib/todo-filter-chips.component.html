@@ -1,0 +1,26 @@
+<mat-chip-set class="todo-filter-chips" role="tablist">
+  <mat-chip
+    [class.todo-filter-chips__chip--selected]="filter === 'all'"
+    [highlighted]="filter === 'all'"
+    role="tab"
+    data-testid="filter-all"
+    (click)="select('all')">
+    All <span class="todo-filter-chips__count">{{ totalCount }}</span>
+  </mat-chip>
+  <mat-chip
+    [class.todo-filter-chips__chip--selected]="filter === 'incomplete'"
+    [highlighted]="filter === 'incomplete'"
+    role="tab"
+    data-testid="filter-incomplete"
+    (click)="select('incomplete')">
+    Incomplete <span class="todo-filter-chips__count">{{ incompleteCount }}</span>
+  </mat-chip>
+  <mat-chip
+    [class.todo-filter-chips__chip--selected]="filter === 'complete'"
+    [highlighted]="filter === 'complete'"
+    role="tab"
+    data-testid="filter-complete"
+    (click)="select('complete')">
+    Complete <span class="todo-filter-chips__count">{{ completeCount }}</span>
+  </mat-chip>
+</mat-chip-set>

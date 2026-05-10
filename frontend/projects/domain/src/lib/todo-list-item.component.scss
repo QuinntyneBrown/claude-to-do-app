@@ -1,0 +1,35 @@
+:host { display: block; }
+
+.todo-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+}
+
+.todo-list-item--complete .todo-list-item__title {
+  text-decoration: line-through;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.todo-list-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-list-item__title {
+  margin: 0;
+  font: var(--mat-sys-title-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todo-list-item__due {
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}

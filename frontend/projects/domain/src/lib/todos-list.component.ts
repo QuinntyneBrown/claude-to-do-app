@@ -1,25 +1,19 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ITodosService, TODOS_SERVICE, Todo } from 'api';
+import { ChangeDetectionStrategy, Component, computed, Inject, OnInit, signal } from '@angular/core';
+import { ITodosService, TODOS_SERVICE, Todo, TodoStatus } from 'api';
+import { ErrorBannerComponent, LoadingBarComponent, EmptyStateComponent } from 'components';
 import { catchError, finalize, of } from 'rxjs';
+import { TodoListItemComponent } from './todo-list-item.component';
+import { TodoFilter, TodoFilterChipsComponent } from './todo-filter-chips.component';
 
 @Component({
   selector: 'tb-todos-list',
   standalone: true,
   imports: [
-    FormsModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatProgressBarModule
+    ErrorBannerComponent,
+    LoadingBarComponent,
+    EmptyStateComponent,
+    TodoListItemComponent,
+    TodoFilterChipsComponent
   ],
   templateUrl: './todos-list.component.html',
   styleUrl: './todos-list.component.scss',
@@ -29,7 +23,18 @@ export class TodosListComponent implements OnInit {
   protected readonly todos = signal<Todo[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected newTitle = '';
+  protected readonly filter = signal<TodoFilter>('all');
+
+  protected readonly headerDateLabel = (() => {
+    const today = new Date();
+    return `Today, ${today.getDate()} ${today.toLocaleDateString(undefined, { month: 'long' })}`;
+  })();
+
+  protected readonly incomplete = computed(() => this.todos().filter(t => t.status === 'Incomplete'));
+  protected readonly complete = computed(() => this.todos().filter(t => t.status === 'Complete'));
+  protected readonly visibleIncomplete = computed(() => this.filter() === 'complete' ? [] : this.incomplete());
+  protected readonly visibleComplete = computed(() => this.filter() === 'incomplete' ? [] : this.complete());
+  protected readonly countSummary = computed(() => `${this.complete().length} of ${this.todos().length} complete`);
 
   constructor(@Inject(TODOS_SERVICE) private readonly todosService: ITodosService) {}
 
@@ -52,16 +57,16 @@ export class TodosListComponent implements OnInit {
       .subscribe(items => this.todos.set(items));
   }
 
-  protected addTodo(): void {
-    const title = this.newTitle.trim();
-    if (title === '') {
-      return;
-    }
-    this.todosService
-      .create({ title })
-      .subscribe(created => {
-        this.todos.update(items => [created, ...items]);
-        this.newTitle = '';
-      });
+  protected onFilterChanged(filter: TodoFilter): void {
+    this.filter.set(filter);
+  }
+
+  protected onToggle(todo: Todo, status: TodoStatus): void {
+    this.todosService.toggleStatus(todo.id, { status }).subscribe({
+      next: updated => {
+        this.todos.update(items => items.map(t => t.id === updated.id ? updated : t));
+      },
+      error: () => this.refresh()
+    });
   }
 }

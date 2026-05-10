@@ -78,7 +78,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** `OidcCallbackPage.ts`.
   - **Spec:** `oidc-sign-in.spec.ts` — `Begin_oidc_redirects_to_authorization_url` (mocks `window.location.assign`), `Callback_with_valid_code_signs_in_and_routes_to_todos`, `Callback_with_invalid_state_routes_back_to_sign_in_with_reason`.
 
-### F-005 — App shell + Todos list (full mock fidelity)
+### F-005 — App shell + Todos list (full mock fidelity) — **done** (see `docs/evaluations/FI1-F005.md`)
 
 - **Implements:** REQ-TODO-3, REQ-TODO-3a, REQ-TODO-5 (list checkbox toggle), REQ-TODO-7, REQ-NFR-1, REQ-NFR-7. Mocks: `mocks/todos.html`, `mocks/todos-empty.html`.
 - **Depends on:** F-001 / F-002 (auth state + guard already in MF1; consumed unchanged).

@@ -1,7 +1,7 @@
 import { test, expect, Route } from '@playwright/test';
 import { PasswordResetRequestPage } from '../page-objects/password-reset-request.page';
 import { PasswordResetCompletePage } from '../page-objects/password-reset-complete.page';
-import { TodosPage } from '../page-objects/todos.page';
+import { TodosListPage } from '../page-objects/todos-list.page';
 
 const apiOrigin = 'http://localhost:5217';
 
@@ -34,7 +34,7 @@ test.describe('Password reset — F-003', () => {
     });
 
     const completePage = new PasswordResetCompletePage(page);
-    const todos = new TodosPage(page);
+    const todos = new TodosListPage(page);
     await completePage.goto('valid-token-abc');
     await completePage.submit('brand-new-passphrase-123');
 

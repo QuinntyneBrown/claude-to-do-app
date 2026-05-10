@@ -1,0 +1,12 @@
+:host { display: block; }
+
+.todo-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.todo-filter-chips__count {
+  margin-left: 4px;
+  opacity: 0.7;
+}

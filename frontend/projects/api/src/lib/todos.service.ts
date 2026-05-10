@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig } from './api-config';
 import { Todo } from './todo';
-import { CreateTodoRequest, ITodosService } from './todos.service.contract';
+import { CreateTodoRequest, ITodosService, ToggleTodoStatusRequest } from './todos.service.contract';
 
 @Injectable()
 export class TodosService implements ITodosService {
@@ -18,5 +18,9 @@ export class TodosService implements ITodosService {
 
   create(request: CreateTodoRequest): Observable<Todo> {
     return this.http.post<Todo>(`${this.config.baseUrl}/api/todos`, request);
+  }
+
+  toggleStatus(id: string, request: ToggleTodoStatusRequest): Observable<Todo> {
+    return this.http.patch<Todo>(`${this.config.baseUrl}/api/todos/${id}/status`, request);
   }
 }

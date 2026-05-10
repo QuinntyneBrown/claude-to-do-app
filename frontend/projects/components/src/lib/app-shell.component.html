@@ -1,0 +1,37 @@
+<div class="app-shell" data-testid="app-shell">
+
+  <header class="app-shell__top-bar">
+    <h1 class="app-shell__title">{{ title }}</h1>
+  </header>
+
+  <nav class="app-shell__nav-rail" data-testid="nav-rail" aria-label="Primary">
+    @for (item of navItems; track item.route) {
+      <a
+        class="app-shell__rail-item"
+        [routerLink]="item.route"
+        routerLinkActive="app-shell__rail-item--active"
+        [attr.data-testid]="'nav-rail-' + item.route">
+        <span class="app-shell__rail-icon"><mat-icon>{{ item.icon }}</mat-icon></span>
+        <span class="app-shell__rail-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <main class="app-shell__main">
+    <ng-content></ng-content>
+  </main>
+
+  <nav class="app-shell__nav-bar" data-testid="nav-bar" aria-label="Primary">
+    @for (item of navItems; track item.route) {
+      <a
+        class="app-shell__bar-item"
+        [routerLink]="item.route"
+        routerLinkActive="app-shell__bar-item--active"
+        [attr.data-testid]="'nav-bar-' + item.route">
+        <span class="app-shell__bar-icon"><mat-icon>{{ item.icon }}</mat-icon></span>
+        <span class="app-shell__bar-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+</div>
