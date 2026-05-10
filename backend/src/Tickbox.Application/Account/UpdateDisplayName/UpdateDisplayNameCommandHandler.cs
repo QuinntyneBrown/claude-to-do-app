@@ -24,6 +24,6 @@ public sealed class UpdateDisplayNameCommandHandler : IRequestHandler<UpdateDisp
         user.DisplayName = request.DisplayName.Trim();
         await _db.SaveChangesAsync(cancellationToken);
 
-        return new MyProfile(user.Email, user.DisplayName, PendingEmail: null);
+        return new MyProfile(user.Email, user.DisplayName, user.PendingEmail);
     }
 }

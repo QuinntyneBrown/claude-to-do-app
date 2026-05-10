@@ -101,7 +101,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance tests:** `Get_me_returns_authenticated_users_profile`, `Update_display_name_persists_and_returns_new_profile`, `Update_display_name_rejects_blank_or_too_long`.
 - **Specific guidance rules:** General §"Per-user isolation" (every account handler reads/writes the caller only).
 
-### B-007 — Account: email-change request + confirm + cancel
+### B-007 — Account: email-change request + confirm + cancel — **done** (see `docs/evaluations/BI1-B007.md`)
 
 - **Implements:** REQ-ACCT-2 AC2/AC3.
 - **Depends on:** B-004 (`IEmailService`).

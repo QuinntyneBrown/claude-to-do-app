@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tickbox.Application.Account;
+using Tickbox.Application.Account.EmailChange;
 using Tickbox.Application.Account.GetMyProfile;
 using Tickbox.Application.Account.UpdateDisplayName;
 
@@ -30,6 +31,27 @@ public sealed class AccountController : ControllerBase
     public async Task<ActionResult<MyProfile>> UpdateDisplayName([FromBody] UpdateDisplayNameRequest request, CancellationToken cancellationToken)
     {
         var profile = await _mediator.Send(new UpdateDisplayNameCommand(request.DisplayName), cancellationToken);
+        return Ok(profile);
+    }
+
+    [HttpPost("email-change/request")]
+    public async Task<ActionResult<MyProfile>> RequestEmailChange([FromBody] EmailChangeRequest request, CancellationToken cancellationToken)
+    {
+        var profile = await _mediator.Send(new RequestEmailChangeCommand(request.NewEmail), cancellationToken);
+        return Ok(profile);
+    }
+
+    [HttpPost("email-change/confirm")]
+    public async Task<ActionResult<MyProfile>> ConfirmEmailChange([FromBody] EmailChangeConfirmRequest request, CancellationToken cancellationToken)
+    {
+        var profile = await _mediator.Send(new ConfirmEmailChangeCommand(request.Token), cancellationToken);
+        return Ok(profile);
+    }
+
+    [HttpDelete("email-change")]
+    public async Task<ActionResult<MyProfile>> CancelEmailChange(CancellationToken cancellationToken)
+    {
+        var profile = await _mediator.Send(new CancelEmailChangeCommand(), cancellationToken);
         return Ok(profile);
     }
 }

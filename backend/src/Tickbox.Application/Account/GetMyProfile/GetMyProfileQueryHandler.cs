@@ -21,6 +21,6 @@ public sealed class GetMyProfileQueryHandler : IRequestHandler<GetMyProfileQuery
         var user = await _db.Users.SingleOrDefaultAsync(u => u.Id == userId, cancellationToken)
                    ?? throw new NotFoundException("User not found.");
 
-        return new MyProfile(user.Email, user.DisplayName, PendingEmail: null);
+        return new MyProfile(user.Email, user.DisplayName, user.PendingEmail);
     }
 }

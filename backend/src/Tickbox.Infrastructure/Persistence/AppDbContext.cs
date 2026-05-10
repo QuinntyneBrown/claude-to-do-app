@@ -28,6 +28,8 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             b.HasIndex(u => u.Email).IsUnique();
             b.Property(u => u.DisplayName).IsRequired().HasMaxLength(100);
             b.Property(u => u.PasswordHash).HasMaxLength(256);
+            b.Property(u => u.PendingEmail).HasMaxLength(256);
+            b.Property(u => u.PendingEmailTokenHash).HasMaxLength(128);
         });
 
         modelBuilder.Entity<Todo>(b =>
