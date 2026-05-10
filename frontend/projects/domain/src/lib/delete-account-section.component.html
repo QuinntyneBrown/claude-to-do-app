@@ -1,0 +1,16 @@
+<div class="delete-account-section">
+  <p class="delete-account-section__description">
+    Deleting your account permanently removes every to-do you own. This action cannot be undone.
+  </p>
+  <button
+    mat-stroked-button
+    color="warn"
+    type="button"
+    class="delete-account-section__button"
+    data-testid="delete-account-button"
+    [disabled]="submitting()"
+    (click)="requestDelete()">
+    <mat-icon>delete_forever</mat-icon>
+    Delete account
+  </button>
+</div>

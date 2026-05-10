@@ -41,6 +41,11 @@
           Sign out
         </button>
       </section>
+
+      <section class="profile-page__section">
+        <h2 class="profile-page__heading">Danger zone</h2>
+        <tb-delete-account-section (deleted)="onAccountDeleted()"></tb-delete-account-section>
+      </section>
     </div>
   }
 </tb-app-shell>

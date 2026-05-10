@@ -12,3 +12,4 @@ export * from './lib/display-name-edit.component';
 export * from './lib/change-password-form.component';
 export * from './lib/email-change-form.component';
 export * from './lib/email-change-banner.component';
+export * from './lib/delete-account-section.component';

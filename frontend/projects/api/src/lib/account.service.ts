@@ -35,4 +35,8 @@ export class AccountService implements IAccountService {
   cancelEmailChange(): Observable<MyProfile> {
     return this.http.delete<MyProfile>(`${this.config.baseUrl}/api/account/email-change`);
   }
+
+  deleteMyAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.config.baseUrl}/api/account`);
+  }
 }

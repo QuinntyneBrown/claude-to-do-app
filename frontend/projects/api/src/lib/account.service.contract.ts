@@ -9,6 +9,7 @@ export interface IAccountService {
   requestEmailChange(request: RequestEmailChangeRequest): Observable<MyProfile>;
   confirmEmailChange(request: ConfirmEmailChangeRequest): Observable<MyProfile>;
   cancelEmailChange(): Observable<MyProfile>;
+  deleteMyAccount(): Observable<void>;
 }
 
 export const ACCOUNT_SERVICE = new InjectionToken<IAccountService>('Tickbox.IAccountService');

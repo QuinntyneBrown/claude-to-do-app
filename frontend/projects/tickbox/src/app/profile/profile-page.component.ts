@@ -6,6 +6,7 @@ import { ACCOUNT_SERVICE, AUTH_SERVICE, IAccountService, IAuthService, MyProfile
 import { AppShellComponent, AppShellNavItem } from 'components';
 import {
   ChangePasswordFormComponent,
+  DeleteAccountSectionComponent,
   DisplayNameEditComponent,
   EmailChangeBannerComponent,
   EmailChangeFormComponent,
@@ -24,7 +25,8 @@ import { AuthStateService } from '../auth/auth-state.service';
     DisplayNameEditComponent,
     ChangePasswordFormComponent,
     EmailChangeFormComponent,
-    EmailChangeBannerComponent
+    EmailChangeBannerComponent,
+    DeleteAccountSectionComponent
   ],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
@@ -60,6 +62,10 @@ export class ProfilePageComponent implements OnInit {
       next: () => this.completeSignOut(),
       error: () => this.completeSignOut()
     });
+  }
+
+  protected onAccountDeleted(): void {
+    this.completeSignOut();
   }
 
   private completeSignOut(): void {

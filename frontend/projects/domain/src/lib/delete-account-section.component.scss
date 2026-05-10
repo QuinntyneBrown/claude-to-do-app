@@ -1,0 +1,14 @@
+:host { display: block; }
+
+.delete-account-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.delete-account-section__description {
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
