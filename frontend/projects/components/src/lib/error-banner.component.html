@@ -1,3 +1,9 @@
 @if (message) {
-  <p class="error-banner" [attr.data-testid]="testId">{{ message }}</p>
+  <p
+    class="error-banner"
+    role="alert"
+    aria-live="polite"
+    [attr.data-testid]="testId">
+    {{ message }}
+  </p>
 }
