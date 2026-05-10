@@ -116,7 +116,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** `ProfilePage.ts`.
   - **Specs:** `profile-view.spec.ts` — `Profile_renders_email_and_display_name`. `profile-update-display-name.spec.ts` — `Update_display_name_persists_and_renders_new_value`, `Update_display_name_rejects_blank_or_too_long`. `profile-change-password.spec.ts` — `Change_password_with_correct_current_persists`, `Change_password_with_wrong_current_shows_inline_error`. `sign-out.spec.ts` — `Sign_out_clears_auth_state_and_routes_to_sign_in`.
 
-### F-008 — Email change flow (banner + confirm route + cancel)
+### F-008 — Email change flow (banner + confirm route + cancel) — **done** (see `docs/evaluations/FI1-F008.md`)
 
 - **Implements:** REQ-ACCT-2 AC2/AC3. Mock: `mocks/profile.html` (banner area).
 - **Depends on:** F-007 (`ProfilePageComponent`, `IAccountService`).
