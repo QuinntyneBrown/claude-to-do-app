@@ -1,7 +1,7 @@
 # Tickbox frontend — implementation plan (FP1)
 
-Author: `claude@M5` (FP1)
-Status: draft, awaiting FP2 evaluation
+Author: `claude@M5` (FP1, FP2)
+Status: approved (FP2 pass 2 clean)
 Inputs: `docs/requirements.md` (approved), `docs/plans/backend-tasks.md` (approved + delivered), accepted mocks under `mocks/`, MF1 MVP under `frontend/`, `dotnet-angular-authenticated-full-stack-workflow.html` Implementation Guidance.
 
 This plan is the authoritative source for what frontend tasks FT1 will slice. Every plan item maps to one or more guidance bullets and to one or more `REQ-*` requirements; every frontend-relevant requirement appears here. Every accepted mock screen has at least one route + component combination.
@@ -67,7 +67,19 @@ Maps to: Frontend §"Mobile-first web app", §"main application — depends on a
 
 ## 3. Component inventory
 
-One component per file with separate `.html`, `.scss`, `.ts`. Selectors prefixed `tb-`.
+### 3.0 Conventions every component must follow
+
+These apply to every entry in §3.1 / §3.2 / §3.3 — the component-by-component tables stay terse so this list does the heavy lifting:
+
+- **One type per file**, with separate `.html`, `.scss`, `.ts` (and a `.spec.ts` only when a unit-test makes sense beyond the Playwright POM).
+- **Selectors prefixed `tb-`.**
+- **BEM CSS naming throughout** — every class is Block / Block__Element / Block--Modifier (e.g., `todos-list`, `todos-list__item`, `todos-list__item--complete`). No utility-class frameworks (no Tailwind, no Bootstrap utility classes). No global element selectors inside component SCSS — every rule is rooted on the component block.
+- **Material 3 components only** for primitives (button, form-field, input, checkbox, icon, progress-bar, toolbar, list, dialog, snackbar, chip-set, divider, menu, tabs). Native HTML where Material has no equivalent (forms, headings, semantic landmarks). No third-party UI kit.
+- **System-token colours / type / shape** consumed via `var(--mat-sys-*)` only — no per-component palette overrides, no hard-coded hex / pixel font sizes.
+- **Standalone Angular components** with `imports: [...]` declared explicitly; `changeDetection: ChangeDetectionStrategy.OnPush`.
+- **Control flow via `@if` / `@for` / `@switch`** — never `*ngIf` / `*ngFor` (Angular 21 default).
+- **Service consumption via the `*.service.contract.ts` `InjectionToken`**, not the concrete class.
+- **`data-testid` on every interactive control referenced by a Playwright POM.** The POM owns the testid catalogue; no testids are added that aren't read by a POM.
 
 ### 3.1 `components` library — reusable, no api/domain dependency
 
@@ -269,6 +281,7 @@ Every frontend-relevant requirement from `docs/requirements.md` maps to at least
 | REQ-NFR-2     | §5 design tokens — every component consumes `var(--mat-sys-*)`; M3 components from `@angular/material`                       |
 | REQ-NFR-6     | §6.1 `AuthStateService` keeps the access token in `sessionStorage`; refresh token only in HttpOnly cookie (server-set)       |
 | REQ-NFR-7     | §3 every interactive control uses Angular Material defaults (≥48dp); §7.2 `responsive.spec.ts` asserts touch-target sizes; aria-labels on every icon-only button |
+| REQ-NFR-8     | §3.0 conventions enforced; FT2 / FI1 keep `ng build api/components/domain/tickbox` at 0 warnings 0 errors per slice; `frontend/README.md` documents the run command |
 
 ---
 
