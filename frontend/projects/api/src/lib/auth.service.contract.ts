@@ -39,6 +39,7 @@ export interface IAuthService {
   completePasswordReset(request: CompletePasswordResetRequest): Observable<SignInResponse>;
   beginOidcSignIn(): Observable<OidcBeginResult>;
   completeOidcSignIn(request: OidcCallbackRequest): Observable<SignInResponse>;
+  signOut(): Observable<void>;
 }
 
 export const AUTH_SERVICE = new InjectionToken<IAuthService>('Tickbox.IAuthService');

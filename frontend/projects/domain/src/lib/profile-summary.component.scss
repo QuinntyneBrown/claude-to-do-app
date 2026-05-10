@@ -1,0 +1,26 @@
+:host { display: block; }
+
+.profile-summary {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-summary__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-summary__label {
+  font: var(--mat-sys-label-medium);
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.profile-summary__value {
+  font: var(--mat-sys-body-large);
+  color: var(--mat-sys-on-surface);
+  margin: 0;
+}

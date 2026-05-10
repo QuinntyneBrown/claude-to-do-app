@@ -7,3 +7,6 @@ export * from './lib/todo-list-item.component';
 export * from './lib/todo-filter-chips.component';
 export * from './lib/todo-activity-list.component';
 export * from './lib/todo-edit-form.component';
+export * from './lib/profile-summary.component';
+export * from './lib/display-name-edit.component';
+export * from './lib/change-password-form.component';

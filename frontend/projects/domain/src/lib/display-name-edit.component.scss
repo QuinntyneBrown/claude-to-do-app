@@ -1,0 +1,14 @@
+:host { display: block; }
+
+.display-name-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.display-name-edit__field { width: 100%; }
+
+.display-name-edit__actions {
+  display: flex;
+  justify-content: flex-end;
+}

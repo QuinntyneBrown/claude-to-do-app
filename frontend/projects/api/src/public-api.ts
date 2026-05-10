@@ -6,3 +6,6 @@ export * from './lib/todos.service';
 export * from './lib/register-request';
 export * from './lib/auth.service.contract';
 export * from './lib/auth.service';
+export * from './lib/my-profile';
+export * from './lib/account.service.contract';
+export * from './lib/account.service';

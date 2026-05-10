@@ -38,5 +38,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./todos/todo-detail-page.component').then(m => m.TodoDetailPageComponent)
   },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./profile/profile-page.component').then(m => m.ProfilePageComponent)
+  },
   { path: '**', redirectTo: 'todos' }
 ];

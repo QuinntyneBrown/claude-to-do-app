@@ -1,0 +1,24 @@
+<form class="display-name-edit" (ngSubmit)="save()">
+  <mat-form-field appearance="outline" class="display-name-edit__field">
+    <mat-label>Display name</mat-label>
+    <input
+      matInput
+      name="displayName"
+      maxlength="120"
+      data-testid="display-name-input"
+      [(ngModel)]="displayName" />
+  </mat-form-field>
+
+  <tb-error-banner [message]="error()" testId="display-name-error"></tb-error-banner>
+
+  <div class="display-name-edit__actions">
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      data-testid="display-name-save"
+      [disabled]="submitting()">
+      {{ submitting() ? 'Saving…' : 'Save' }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,25 @@
+:host { display: block; }
+
+.profile-page {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.profile-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-page__section--actions {
+  align-items: flex-start;
+}
+
+.profile-page__heading {
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-on-surface);
+  margin: 0;
+}

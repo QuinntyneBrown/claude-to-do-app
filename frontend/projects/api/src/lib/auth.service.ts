@@ -39,4 +39,8 @@ export class AuthService implements IAuthService {
   completeOidcSignIn(request: OidcCallbackRequest): Observable<SignInResponse> {
     return this.http.post<SignInResponse>(`${this.config.baseUrl}/api/auth/oidc/callback`, request, { withCredentials: true });
   }
+
+  signOut(): Observable<void> {
+    return this.http.post<void>(`${this.config.baseUrl}/api/auth/sign-out`, {}, { withCredentials: true });
+  }
 }
