@@ -11,6 +11,12 @@ export class ProfilePage {
   readonly changePasswordSubmit: Locator;
   readonly changePasswordError: Locator;
   readonly signOutButton: Locator;
+  readonly emailChangeInput: Locator;
+  readonly emailChangeSubmit: Locator;
+  readonly emailChangeError: Locator;
+  readonly emailChangeBanner: Locator;
+  readonly emailChangeBannerPending: Locator;
+  readonly emailChangeBannerCancel: Locator;
 
   constructor(private readonly page: Page) {
     this.emailValue = page.getByTestId('profile-email');
@@ -23,6 +29,12 @@ export class ProfilePage {
     this.changePasswordSubmit = page.getByTestId('change-password-submit');
     this.changePasswordError = page.getByTestId('change-password-error');
     this.signOutButton = page.getByTestId('sign-out-button');
+    this.emailChangeInput = page.getByTestId('email-change-input');
+    this.emailChangeSubmit = page.getByTestId('email-change-submit');
+    this.emailChangeError = page.getByTestId('email-change-error');
+    this.emailChangeBanner = page.getByTestId('email-change-banner');
+    this.emailChangeBannerPending = page.getByTestId('email-change-banner-pending');
+    this.emailChangeBannerCancel = page.getByTestId('email-change-banner-cancel');
   }
 
   async goto(): Promise<void> {
