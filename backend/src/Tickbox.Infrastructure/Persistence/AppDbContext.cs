@@ -12,6 +12,8 @@ public sealed class AppDbContext : DbContext, IAppDbContext
     public DbSet<Todo> Todos => Set<Todo>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
+    public DbSet<SignInAttempt> SignInAttempts => Set<SignInAttempt>();
+    public DbSet<SecurityAuditEvent> SecurityAuditEvents => Set<SecurityAuditEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +52,25 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             b.HasKey(ur => new { ur.UserId, ur.RoleId });
             b.HasOne<User>().WithMany().HasForeignKey(ur => ur.UserId).OnDelete(DeleteBehavior.Cascade);
             b.HasOne<Role>().WithMany().HasForeignKey(ur => ur.RoleId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<SignInAttempt>(b =>
+        {
+            b.ToTable("SignInAttempts");
+            b.HasKey(a => a.Id);
+            b.Property(a => a.Email).IsRequired().HasMaxLength(256);
+            b.Property(a => a.IpAddress).HasMaxLength(64);
+            b.HasIndex(a => new { a.Email, a.OccurredAt });
+        });
+
+        modelBuilder.Entity<SecurityAuditEvent>(b =>
+        {
+            b.ToTable("SecurityAuditEvents");
+            b.HasKey(e => e.Id);
+            b.Property(e => e.Kind).HasConversion<int>();
+            b.Property(e => e.IpAddress).HasMaxLength(64);
+            b.Property(e => e.Detail).HasMaxLength(1024);
+            b.HasIndex(e => new { e.UserId, e.OccurredAt });
         });
     }
 }

@@ -9,5 +9,7 @@ public interface IAppDbContext
     DbSet<Todo> Todos { get; }
     DbSet<Role> Roles { get; }
     DbSet<UserRole> UserRoles { get; }
+    DbSet<SignInAttempt> SignInAttempts { get; }
+    DbSet<SecurityAuditEvent> SecurityAuditEvents { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

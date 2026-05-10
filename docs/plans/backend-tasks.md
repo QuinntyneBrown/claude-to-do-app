@@ -39,7 +39,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance test:** `Register_creates_user_with_User_role_and_token_carries_role_claim` — registers, decodes the JWT, asserts the `role` claim is `"User"`, asserts `[Authorize(Roles="User")]` on `GET /api/todos` still succeeds.
 - **Specific guidance rules:** Auth §"RBAC...", General §"One type per C# file".
 
-### B-002 — Audit log + sign-in lockout + `IRequestContext`
+### B-002 — Audit log + sign-in lockout + `IRequestContext` — **done** (see `docs/evaluations/BI1-B002.md`)
 
 - **Implements:** REQ-AUTH-2 AC3 (5/15-min lockout), REQ-NFR-4.
 - **Depends on:** B-001 (audit-event handlers run inside `[Authorize(Roles="User")]` controllers later).
