@@ -78,7 +78,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance tests:** `Request_password_reset_returns_202_for_unknown_and_known_emails`, `Complete_password_reset_with_valid_token_signs_user_in_and_revokes_existing_sessions`, `Complete_password_reset_with_expired_token_returns_400`.
 - **Specific guidance rules:** Auth §"Salted hashes from a modern password-hashing function"; REQ-AUTH-7 password policy.
 
-### B-005 — OIDC PKCE sign-in (begin + callback)
+### B-005 — OIDC PKCE sign-in (begin + callback) — **done** (see `docs/evaluations/BI1-B005.md`)
 
 - **Implements:** REQ-AUTH-3 AC1/AC2.
 - **Depends on:** B-001 (nullable `PasswordHash`, role assignment), B-003 (refresh-token issuing).

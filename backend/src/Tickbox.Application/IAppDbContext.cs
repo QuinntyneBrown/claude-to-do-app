@@ -13,5 +13,6 @@ public interface IAppDbContext
     DbSet<SecurityAuditEvent> SecurityAuditEvents { get; }
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<PasswordResetToken> PasswordResetTokens { get; }
+    DbSet<OidcAuthorizationRequest> OidcAuthorizationRequests { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

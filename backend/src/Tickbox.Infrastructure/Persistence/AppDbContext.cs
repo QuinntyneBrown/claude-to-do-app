@@ -16,6 +16,7 @@ public sealed class AppDbContext : DbContext, IAppDbContext
     public DbSet<SecurityAuditEvent> SecurityAuditEvents => Set<SecurityAuditEvent>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<OidcAuthorizationRequest> OidcAuthorizationRequests => Set<OidcAuthorizationRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -93,6 +94,14 @@ public sealed class AppDbContext : DbContext, IAppDbContext
             b.HasIndex(t => t.TokenHash).IsUnique();
             b.HasIndex(t => t.UserId);
             b.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OidcAuthorizationRequest>(b =>
+        {
+            b.ToTable("OidcAuthorizationRequests");
+            b.HasKey(r => r.State);
+            b.Property(r => r.State).HasMaxLength(128);
+            b.Property(r => r.CodeVerifier).IsRequired().HasMaxLength(256);
         });
     }
 }

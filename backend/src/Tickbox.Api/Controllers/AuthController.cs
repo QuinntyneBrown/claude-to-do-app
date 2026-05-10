@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tickbox.Api.Auth;
 using Tickbox.Application.Auth;
 using Tickbox.Application.Auth.RefreshAccessToken;
+using Tickbox.Application.Auth.Oidc;
 using Tickbox.Application.Auth.PasswordReset;
 using Tickbox.Application.Auth.RegisterUser;
 using Tickbox.Application.Auth.SignInUser;
@@ -18,11 +19,13 @@ public sealed class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IWebHostEnvironment _env;
+    private readonly IOidcConfiguration _oidc;
 
-    public AuthController(IMediator mediator, IWebHostEnvironment env)
+    public AuthController(IMediator mediator, IWebHostEnvironment env, IOidcConfiguration oidc)
     {
         _mediator = mediator;
         _env = env;
+        _oidc = oidc;
     }
 
     [HttpPost("register")]
@@ -79,6 +82,31 @@ public sealed class AuthController : ControllerBase
     public async Task<ActionResult<SignInUserResult>> CompletePasswordReset([FromBody] CompletePasswordResetRequest request, CancellationToken cancellationToken)
     {
         var outcome = await _mediator.Send(new CompletePasswordResetCommand(request.Token, request.NewPassword), cancellationToken);
+        WriteRefreshCookie(outcome);
+        return Ok(new SignInUserResult(outcome.UserId, outcome.AccessToken));
+    }
+
+    [HttpGet("oidc/authorize")]
+    [AllowAnonymous]
+    public async Task<ActionResult<BeginOidcSignInResult>> BeginOidc(CancellationToken cancellationToken)
+    {
+        if (!_oidc.Enabled)
+        {
+            return NotFound();
+        }
+        var result = await _mediator.Send(new BeginOidcSignInQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("oidc/callback")]
+    [AllowAnonymous]
+    public async Task<ActionResult<SignInUserResult>> CompleteOidc([FromBody] OidcCallbackRequest request, CancellationToken cancellationToken)
+    {
+        if (!_oidc.Enabled)
+        {
+            return NotFound();
+        }
+        var outcome = await _mediator.Send(new CompleteOidcSignInCommand(request.Code, request.State), cancellationToken);
         WriteRefreshCookie(outcome);
         return Ok(new SignInUserResult(outcome.UserId, outcome.AccessToken));
     }
