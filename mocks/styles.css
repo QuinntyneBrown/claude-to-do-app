@@ -117,24 +117,27 @@ button {
 }
 
 /* ===========================================================================
-   Type scale (M3) — class-based so any element can adopt it
+   Text block — M3 type scale exposed as BEM modifiers on a .text block.
+   Usage: <p class="text text--body-medium">.
    =========================================================================== */
 
-.type-display-l { font-size: 57px; line-height: 64px; font-weight: 400; letter-spacing: -0.25px; }
-.type-display-m { font-size: 45px; line-height: 52px; font-weight: 400; }
-.type-display-s { font-size: 36px; line-height: 44px; font-weight: 400; }
-.type-headline-l { font-size: 32px; line-height: 40px; font-weight: 400; }
-.type-headline-m { font-size: 28px; line-height: 36px; font-weight: 400; }
-.type-headline-s { font-size: 24px; line-height: 32px; font-weight: 400; }
-.type-title-l { font-size: 22px; line-height: 28px; font-weight: 500; }
-.type-title-m { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
-.type-title-s { font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
-.type-body-l { font-size: 16px; line-height: 24px; font-weight: 400; letter-spacing: 0.5px; }
-.type-body-m { font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.25px; }
-.type-body-s { font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.4px; }
-.type-label-l { font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
-.type-label-m { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
-.type-label-s { font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+.text { margin: 0; }
+.text--display-large { font-size: 57px; line-height: 64px; font-weight: 400; letter-spacing: -0.25px; }
+.text--display-medium { font-size: 45px; line-height: 52px; font-weight: 400; }
+.text--display-small { font-size: 36px; line-height: 44px; font-weight: 400; }
+.text--headline-large { font-size: 32px; line-height: 40px; font-weight: 400; }
+.text--headline-medium { font-size: 28px; line-height: 36px; font-weight: 400; }
+.text--headline-small { font-size: 24px; line-height: 32px; font-weight: 400; }
+.text--title-large { font-size: 22px; line-height: 28px; font-weight: 500; }
+.text--title-medium { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: 0.15px; }
+.text--title-small { font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
+.text--body-large { font-size: 16px; line-height: 24px; font-weight: 400; letter-spacing: 0.5px; }
+.text--body-medium { font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: 0.25px; }
+.text--body-small { font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.4px; }
+.text--label-large { font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.1px; }
+.text--label-medium { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+.text--label-small { font-size: 11px; line-height: 16px; font-weight: 500; letter-spacing: 0.5px; }
+.text--on-surface-variant { color: var(--md-sys-color-on-surface-variant); }
 
 /* ===========================================================================
    App shell — navigation rail (desktop) / bottom bar (mobile)
@@ -727,6 +730,11 @@ button {
   color: var(--md-sys-color-on-secondary-container);
   font-size: 48px;
   margin-bottom: var(--space-3);
+}
+
+.empty-state__icon--error {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .empty-state__title {
