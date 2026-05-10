@@ -12,6 +12,14 @@ export const routes: Routes = [
     loadComponent: () => import('./sign-up/sign-up-page.component').then(m => m.SignUpPageComponent)
   },
   {
+    path: 'password-reset/request',
+    loadComponent: () => import('./password-reset/request-password-reset-page.component').then(m => m.RequestPasswordResetPageComponent)
+  },
+  {
+    path: 'password-reset/complete',
+    loadComponent: () => import('./password-reset/complete-password-reset-page.component').then(m => m.CompletePasswordResetPageComponent)
+  },
+  {
     path: 'todos',
     canActivate: [authGuard],
     loadComponent: () => import('./todos/todos-page.component').then(m => m.TodosPageComponent)

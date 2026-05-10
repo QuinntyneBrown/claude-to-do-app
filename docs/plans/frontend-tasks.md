@@ -55,7 +55,7 @@ These are not repeated per task to avoid noise:
   - **Spec:** `sign-in.spec.ts` — `Sign_in_with_valid_creds_routes_to_todos`, `Sign_in_with_wrong_password_shows_inline_error`, `Sign_in_hides_oidc_button_when_disabled`. Plus a separate spec or test in `sign-in.spec.ts`: `Refresh_interceptor_silently_renews_session_on_401`.
 - **Specific guidance:** Auth §"JWTs validated on every request" frontend-side compliance (silent renewal); REQ-AUTH-3 AC2 (env-flag hide).
 
-### F-003 — Password reset (request + complete)
+### F-003 — Password reset (request + complete) — **done** (see `docs/evaluations/FI1-F003.md`)
 
 - **Implements:** REQ-AUTH-4 AC1/AC2/AC3. Mock: `mocks/password-reset.html` plus a same-mock variant for the complete page.
 - **Slice contents:**

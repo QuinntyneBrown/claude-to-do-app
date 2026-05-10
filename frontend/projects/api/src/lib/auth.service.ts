@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_CONFIG, ApiConfig } from './api-config';
-import { IAuthService, SignInRequest, SignInResponse } from './auth.service.contract';
+import { CompletePasswordResetRequest, IAuthService, PasswordResetRequest, SignInRequest, SignInResponse } from './auth.service.contract';
 import { RegisterRequest } from './register-request';
 
 @Injectable()
@@ -22,5 +22,13 @@ export class AuthService implements IAuthService {
 
   refreshAccessToken(): Observable<SignInResponse> {
     return this.http.post<SignInResponse>(`${this.config.baseUrl}/api/auth/refresh`, {}, { withCredentials: true });
+  }
+
+  requestPasswordReset(request: PasswordResetRequest): Observable<void> {
+    return this.http.post<void>(`${this.config.baseUrl}/api/auth/password-reset/request`, request);
+  }
+
+  completePasswordReset(request: CompletePasswordResetRequest): Observable<SignInResponse> {
+    return this.http.post<SignInResponse>(`${this.config.baseUrl}/api/auth/password-reset/complete`, request);
   }
 }
