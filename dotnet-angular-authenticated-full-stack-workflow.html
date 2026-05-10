@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>App Delivery Workflow (Agent-Only)</title>
+  </head>
+  <body>
+    <header>
+      <h1>App Delivery Workflow</h1>
+      <p><strong>Audience:</strong> Claude agent only. This document is the single source of truth for what to do next. Do not rewrite it for human readability.</p>
+      <p><strong>Mission:</strong> Drive <code>./docs/idea.md</code> to a deployed app using this fixed, evaluable, parallelizable workflow.</p>
+      <p><strong>Loop command:</strong> <code>/loop 1m ./dotnet-angular-authenticated-full-stack-workflow.html ./docs/idea.md</code></p>
+    </header>
+
+    <section id="agent-protocol">
+      <h2>Agent Protocol (run this every loop iteration)</h2>
+      <p><strong>Multi-agent coordination:</strong> Two or more agents may be running this workflow on different machines. <code>dotnet-angular-authenticated-full-stack-workflow.html</code> in <code>origin/main</code> is the shared lock table. Every status or owner change MUST be committed and pushed immediately so the other agent sees it on its next iteration. Identify yourself with a stable, unique <code>data-owner</code> value — for example <code>claude@&lt;hostname&gt;</code>. Never use the bare value <code>claude</code> when more than one agent is active.</p>
+
+      <ol>
+        <li><strong>Sync from remote first.</strong> Run <code>git fetch origin</code> then <code>git pull --rebase origin main</code> in the repo root. Do not read <code>dotnet-angular-authenticated-full-stack-workflow.html</code> until the pull succeeds. If the working tree is dirty (uncommitted edits from a prior aborted iteration), <code>git stash</code> them, pull, then <code>git stash pop</code> and resolve before continuing.</li>
+        <li><strong>Read</strong> this file and parse every <code>&lt;article data-task-id="..."&gt;</code> element.</li>
+        <li><strong>Resolve statuses:</strong> for any task whose <code>data-status="blocked"</code>, recheck dependencies. If every ID in <code>data-depends-on</code> has <code>data-status="done"</code> (or the list is empty), update that task's <code>data-status</code> to <code>ready</code>. If you flipped any statuses, save, commit (<code>chore(workflow): unblock &lt;ids&gt;</code>), and push before continuing.</li>
+        <li><strong>Pick the next task</strong> using this priority order:
+          <ol type="a">
+            <li>Any task already <code>data-status="in-progress"</code> with <code>data-owner</code> equal to <em>your</em> identifier — resume it.</li>
+            <li>Otherwise, the first task in document order with <code>data-status="ready"</code> and <code>data-owner=""</code>.</li>
+            <li>If no ready task exists and any task is still <code>blocked</code> or <code>in-progress</code> by another owner, exit this iteration (wait for the next loop tick).</li>
+            <li>If every task has <code>data-status="done"</code>, the workflow is complete — write <code>WORKFLOW COMPLETE</code> and stop the loop.</li>
+          </ol>
+        </li>
+        <li><strong>Claim it atomically</strong> (this is the critical section for two-agent safety):
+          <ol type="a">
+            <li>Set <code>data-status="in-progress"</code> and <code>data-owner="&lt;your-id&gt;"</code> on the chosen article. Save.</li>
+            <li><code>git add dotnet-angular-authenticated-full-stack-workflow.html</code></li>
+            <li><code>git commit -m "claim(workflow): &lt;task-id&gt; by &lt;your-id&gt;"</code></li>
+            <li><code>git push origin main</code></li>
+            <li>If the push is rejected (non-fast-forward), the other agent claimed something concurrently. <code>git reset --hard origin/main</code> after fetching, then restart this iteration from step 1. Do <strong>not</strong> retry the same task without re-reading.</li>
+          </ol>
+          The push-success is the lock acquisition. Until it succeeds, you do not own the task.
+        </li>
+        <li><strong>Execute the task</strong> per its <code>Goal</code>, <code>Inputs</code>, and <code>Deliverable</code>. Use the skill named in <code>data-skill</code> if one exists; otherwise proceed without a skill. Commit and push deliverable artifacts (code, docs, tests) as you produce them, on their own commits separate from workflow file state changes.</li>
+        <li><strong>Evaluation tasks</strong> (<code>data-evaluation-passes &gt; 0</code>): run the evaluation that many times, appending findings to <code>./docs/evaluations/&lt;task-id&gt;.md</code> before marking done. Implementation tasks use ATDD: write the acceptance test first, then make it pass.</li>
+        <li><strong>On completion:</strong>
+          <ol type="a">
+            <li>Set <code>data-status="done"</code> on the article and clear <code>data-owner</code>.</li>
+            <li>Re-run step 3 so newly unblocked tasks flip to <code>ready</code> in the same edit.</li>
+            <li>Save, then <code>git add dotnet-angular-authenticated-full-stack-workflow.html</code>, <code>git commit -m "done(workflow): &lt;task-id&gt;"</code>, <code>git push origin main</code>.</li>
+            <li>If push is rejected: <code>git pull --rebase origin main</code>, reapply your status change on top (your <code>done</code> still wins because you held the lock), then push again.</li>
+          </ol>
+        </li>
+        <li><strong>If blocked mid-task</strong>, leave <code>data-status="in-progress"</code>, append a note to a sibling <code>&lt;p data-note="blocker"&gt;</code> inside the article describing what is needed. Save, commit (<code>note(workflow): &lt;task-id&gt; blocker</code>), push, and exit the iteration. The other agent must <strong>not</strong> steal an <code>in-progress</code> task; only the owner clears it.</li>
+        <li><strong>End of iteration:</strong> ensure your working tree is clean and your local <code>main</code> matches <code>origin/main</code>. If not, you have unpushed work — push it before the loop fires again.</li>
+      </ol>
+
+      <p><strong>Concurrency rules:</strong></p>
+      <ul>
+        <li>Tasks sharing a <code>data-parallel-group</code> may proceed independently once dependencies are met. With two agents, the second one picks the next ready task in document order — usually the parallel sibling.</li>
+        <li>Only the owner of an <code>in-progress</code> task may modify its <code>data-status</code> or <code>data-owner</code>. Never reassign someone else's task.</li>
+        <li>If you find a task <code>in-progress</code> by another owner that has had no commits in 30 minutes (check <code>git log -1 --format=%cI -- dotnet-angular-authenticated-full-stack-workflow.html</code>), append a <code>&lt;p data-note="stale-owner"&gt;</code> note but do not claim it. A human will resolve.</li>
+        <li>Push-rejection on a workflow-file commit is the expected concurrency signal — handle it, do not panic. Push-rejection on a deliverable commit is a normal merge — pull-rebase and re-push.</li>
+      </ul>
+
+      <p><strong>Never</strong> delete tasks, reorder articles, modify <code>data-task-id</code>, force-push <code>main</code>, or change human-readable wording outside the <code>data-*</code> attributes and the <code>data-note</code> elements you append.</p>
+    </section>
+
+    <section id="legend">
+      <h2>Attribute Legend</h2>
+      <ul>
+        <li><code>data-task-id</code>: stable identifier referenced by <code>data-depends-on</code>.</li>
+        <li><code>data-status</code>: <code>ready</code> | <code>blocked</code> | <code>in-progress</code> | <code>done</code>.</li>
+        <li><code>data-owner</code>: unique agent identifier currently holding the task (e.g. <code>claude@laptop-01</code>); empty when unclaimed.</li>
+        <li><code>data-parallel-group</code>: tasks sharing a group can run together when their dependencies are met.</li>
+        <li><code>data-depends-on</code>: comma-separated task IDs that must be <code>done</code> before this task starts.</li>
+        <li><code>data-skill</code>: the Claude skill to invoke for this task (or empty for none).</li>
+        <li><code>data-evaluation-passes</code>: required number of evaluation iterations (0 = not an evaluation task).</li>
+      </ul>
+    </section>
+
+    <section id="implementation-guidance">
+      <h2>Implementation Guidance (mandatory for every backend / frontend task)</h2>
+      <p>This section is the only technology specification the agent will receive. Every implementation task (MB1, MF1, BP1, BT1, BI1, FP1, FT1, FI1) and every implementation evaluation (MB2, MF2, BP2, BT2, FP2, FT2, plus the per-slice eval inside BI1/FI1) MUST be executed against and verified against these rules. References below to "the guidance" mean this section.</p>
+
+      <h3>General</h3>
+      <ul>
+        <li>Mobile-first web app that also looks great and works well on large screens.</li>
+        <li>The entire solution shall follow S.O.L.I.D. principles.</li>
+        <li>Implementation is <strong>radically simple</strong>: the smallest design that fully implements the requirements. No speculative abstractions, no half-built features, no dead code paths.</li>
+        <li>No stubs, no <code>TODO</code> placeholders, no <code>throw new NotImplementedException</code>, no <code>console.log("TODO")</code>, no commented-out logic left "for later". Within reason: optional integrations explicitly deferred in <code>./docs/idea.md</code> or the requirements (for example, transactional email sending) may be replaced by a clearly-named no-op service that logs the intended action; this is the only acceptable form of deferred work and must be called out in the deliverable notes.</li>
+        <li>Every requirement listed in the approved requirements document must be implemented in its entirety before its task is marked done.</li>
+      </ul>
+
+      <h3>Backend (.NET)</h3>
+      <ul>
+        <li>Clean Architecture (Api / Application / Domain / Infrastructure separation).</li>
+        <li>Command/Query Separation (CQS) using <strong>MediatR (free version)</strong>. Commands and queries live in the Application layer.</li>
+        <li>ASP.NET Core Controllers for HTTP endpoints (no minimal APIs unless the requirement explicitly demands it).</li>
+        <li>Entity Framework Core <code>DbContext</code> for data access.</li>
+        <li>Command and query handlers depend on an <code>IAppDbContext</code> interface. The concrete <code>AppDbContext</code> inherits <code>DbContext</code> and implements <code>IAppDbContext</code>. Replace <code>App</code> with the solution-specific name.</li>
+        <li><strong>Do not</strong> add repository or unit-of-work abstractions over EF Core. Handlers use <code>IAppDbContext</code> directly.</li>
+        <li>Microsoft SQL Server as the database.</li>
+        <li>Use Microsoft.Extensions.* for Logging, Configuration, and Dependency Injection.</li>
+        <li>Old-style solution file format (<code>.sln</code>):
+          <ul>
+            <li><code>backend/src</code> — Api project, Application, Domain, Infrastructure, etc.</li>
+            <li><code>backend/tests</code> — backend tests.</li>
+          </ul>
+        </li>
+        <li><strong>One type per C# file.</strong> Every class, interface, enum, record, struct, and delegate gets its own file. NO files containing a class AND an interface, multiple enums, multiple classes, or any combination. The file name MUST match the type name (e.g., <code>FooService.cs</code> contains <code>FooService</code> and nothing else).</li>
+      </ul>
+
+      <h4>Validation</h4>
+      <ul>
+        <li>Use <strong>FluentValidation</strong>. Do <strong>not</strong> use <code>System.ComponentModel.DataAnnotations</code> attributes on commands, queries, or request DTOs.</li>
+        <li>One <code>AbstractValidator&lt;TCommand&gt;</code> per command, colocated with the command in the Application layer (<code>&lt;CommandName&gt;Validator.cs</code>). Same pattern for nested DTOs.</li>
+        <li>A MediatR pipeline behavior runs validators before the handler; failures throw <code>ValidationException</code> and the API maps them to HTTP 400 <code>ValidationProblemDetails</code>.</li>
+        <li>Register validators by assembly scanning so new ones are picked up automatically.</li>
+        <li>HTTP request DTOs are pure transport shapes — no validation attributes; map to commands and let the Application layer validate.</li>
+      </ul>
+
+      <h3>Authentication &amp; User Management</h3>
+      <ul>
+        <li>Two supported sign-in flows, configurable per environment, both producing an equivalent authenticated session:
+          <ul>
+            <li><strong>PKCE-based OAuth 2.0 / OIDC authorization code flow</strong> against an external identity provider.</li>
+            <li><strong>Local username + password</strong> sign-in: backend validates credentials against the application database and issues a signed JWT access token (and a refresh token where appropriate).</li>
+          </ul>
+        </li>
+        <li>Passwords stored only as salted hashes from a modern password-hashing function (Argon2id, PBKDF2 with adequate iterations, or bcrypt with adequate cost). Never store or log plaintext passwords, code verifiers, or tokens.</li>
+        <li>JWTs validated on every request: issuer, audience, signature, expiration. Invalid/expired tokens → HTTP 401.</li>
+        <li>Repeated failed sign-ins are rate-limited, locked out, or otherwise throttled, with a security audit log entry on each event.</li>
+        <li>Full user management — registration, sign-in, sign-out, password reset, profile management, account deletion.</li>
+        <li>RBAC implementation from database to frontend.</li>
+      </ul>
+
+      <h3>Frontend (Angular)</h3>
+      <ul>
+        <li><strong>Angular Material</strong> components for every component — buttons, headers, inputs, etc. Visual language is Material 3 (https://m3.material.io/).</li>
+        <li>Design tokens for consistent colors and spacing across the app.</li>
+        <li><strong>BEM</strong> naming convention for all HTML/CSS classes.</li>
+        <li><strong>One type per file.</strong> All components MUST be split into <code>.html</code>, <code>.scss</code>, <code>.ts</code> file triples. NO single-file components.</li>
+        <li>Angular workspace split into libraries and apps.</li>
+        <li>Libraries use <strong>interface-driven service consumption</strong> (see https://github.com/QuinntyneBrown/interface-driven-service-consumption).</li>
+      </ul>
+
+      <h4>Library Structure</h4>
+      <ul>
+        <li><strong>api library</strong> — models and services needed to communicate with the backend.
+          <ul>
+            <li>Exposes an interface for each service:
+              <ul>
+                <li><code>foo.service.ts</code></li>
+                <li><code>foo.service.contract.ts</code> — includes the TypeScript interface and the injection token.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><strong>components library</strong> — reusable UI components (buttons, headers, etc.). Does <strong>not</strong> depend on api library.</li>
+        <li><strong>domain library</strong> — UI components that depend on api library.
+          <ul>
+            <li>Exposes an interface for each service (if any):
+              <ul>
+                <li><code>foo.service.ts</code></li>
+                <li><code>foo.service.contract.ts</code> — includes the TypeScript interface and the injection token.</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li><strong>main application</strong> — depends on api, components, and domain libraries.</li>
+      </ul>
+
+      <h3>Testing</h3>
+      <ul>
+        <li>E2E testing using <strong>Playwright Page Object Model</strong> for important functionality. ATDD: write the Playwright POM acceptance test first, then implement until it passes.</li>
+      </ul>
+
+      <h3>Implementation Evaluation Rubric (use for every implementation eval task)</h3>
+      <p>Every implementation evaluation (MB2, MF2, BP2, BT2, FP2, FT2, and the per-slice eval inside BI1 and FI1) MUST verify each of the following and record findings under <code>./docs/evaluations/&lt;task-id&gt;.md</code>. Any failure is blocking — fix it in the implementation, then re-run the evaluation pass.</p>
+      <ol>
+        <li><strong>Guidance adherence.</strong> Open the changed code and confirm each relevant bullet from the sections above is satisfied. Backend evals check the Backend, Validation, Auth, and General sections; frontend evals check the Frontend, Library Structure, Auth (frontend side), and General sections; both check Testing.</li>
+        <li><strong>Requirements coverage in entirety.</strong> Every requirement in scope for this task is fully implemented end to end (UI → API → DB where applicable). No "partial" features.</li>
+        <li><strong>Radically simple.</strong> No speculative abstractions, no extra layers, no dead code, no commented-out experiments, no unused parameters, no premature interfaces, no defensive guards for impossible states.</li>
+        <li><strong>No temp code or stubs.</strong> Grep for <code>TODO</code>, <code>FIXME</code>, <code>XXX</code>, <code>HACK</code>, <code>NotImplementedException</code>, <code>throw new Error("not implemented")</code>, empty method bodies that should do work, returned hard-coded sentinel values, commented-out blocks. Each hit is a finding unless it is an explicitly-deferred optional integration documented in the deliverable notes (e.g., transactional email — replaced by a logging no-op service named accordingly).</li>
+        <li><strong>One type per file.</strong> No combined-type C# files; no single-file Angular components.</li>
+        <li><strong>SOLID + CQS shape.</strong> Backend: handlers depend on <code>IAppDbContext</code>, FluentValidation present for every command, no repository/unit-of-work classes. Frontend: services are interface-driven via <code>*.service.contract.ts</code>, libraries respect the dependency direction (components → nothing; domain → api; app → all).</li>
+        <li><strong>ATDD evidence.</strong> Acceptance test exists and was written before the implementation (check git history if needed). It currently passes against the actual implementation.</li>
+        <li><strong>Mobile-first + responsive.</strong> Frontend changes look correct at 360 / 768 / 1440 widths.</li>
+        <li><strong>Build and run clean.</strong> <code>dotnet build</code> and <code>ng build</code> (or equivalent) produce zero errors and zero new warnings. App starts from the documented run command.</li>
+      </ol>
+      <p><strong>Fix-on-find rule:</strong> if any evaluation pass surfaces a finding, the same agent fixes it in the implementation, commits and pushes the fix, then runs another evaluation pass. The eval task is not done until a complete pass produces zero findings.</p>
+    </section>
+
+    <section id="task-board">
+      <h2>Task Board</h2>
+
+      <!-- ========== Discovery ========== -->
+      <article
+        data-task-id="D1"
+        data-phase="design"
+        data-status="ready"
+        data-owner=""
+        data-parallel-group="design"
+        data-depends-on=""
+        data-skill="frontend-designer"
+        data-evaluation-passes="0"
+      >
+        <h3>D1 - Create HTML mocks</h3>
+        <p><strong>Goal:</strong> Produce static HTML mocks of the core product flows from <code>./docs/idea.md</code>. Mocks are visual previews only — no real backend, no live data, no JavaScript behavior beyond what is needed for navigation between mock pages.</p>
+        <p><strong>Inputs:</strong> <code>./docs/idea.md</code></p>
+        <p><strong>Deliverable:</strong> HTML mock files committed under <code>./mocks/</code>, one file per screen, plus an <code>index.html</code> linking to all of them.</p>
+
+        <p><strong>Mandatory design rules</strong> (the agent must follow every bullet — this section is the only design spec available):</p>
+        <ul>
+          <li><strong>Google Material 3.</strong> Every screen adheres to Material 3 design guidelines (https://m3.material.io/). Use Material 3 color roles, type scale, elevation, shape, spacing, and component anatomy. Pull the Material Web components CDN (<code>https://esm.run/@material/web/all.js</code>) or hand-roll markup that matches Material 3 component specs — either is acceptable as long as the visual result reads as Material 3.</li>
+          <li><strong>Static, hard-coded data.</strong> Every list, table, card, form value, user name, avatar, count, date, and chart point is hard-coded directly in the HTML. No <code>fetch</code>, no <code>XMLHttpRequest</code>, no API calls, no JSON loading, no localStorage. If the screen shows "5 messages", the literal markup contains five message rows.</li>
+          <li><strong>Mobile-first responsive.</strong> Author for the smallest viewport first, then add breakpoints up to tablet and desktop. Every screen must look great and remain usable at 360px, 768px, and 1440px widths.</li>
+          <li><strong>BEM CSS naming.</strong> All class names follow Block__Element--Modifier (e.g., <code>card</code>, <code>card__title</code>, <code>card--elevated</code>). No utility-class frameworks (no Tailwind, no Bootstrap utility classes).</li>
+          <li><strong>Authenticated app shell.</strong> Because the eventual product is authenticated, mock both the unauthenticated surfaces (sign-in, sign-up, password reset) and the authenticated surfaces (app shell with navigation, profile menu, sign-out). Show realistic placeholder data for a signed-in user.</li>
+          <li><strong>Coverage.</strong> Mock at least: sign-in, sign-up, password reset, primary authenticated landing page, one detail/CRUD screen per primary entity from the idea, profile/settings, and an empty-state + error-state example. Add screens as the idea requires.</li>
+          <li><strong>No build step.</strong> Each mock file opens directly in a browser via <code>file://</code> with no bundler, no preprocessor, no npm install. Inline or CDN-link CSS only.</li>
+          <li><strong>Self-contained.</strong> Mocks live entirely in <code>./mocks/</code>. They do not import from the (not-yet-existing) Angular workspace and do not affect any backend project.</li>
+        </ul>
+
+        <p><strong>Done when:</strong> every screen above exists in <code>./mocks/</code>, opens cleanly in a browser, renders as Material 3, looks correct at 360 / 768 / 1440 widths, and contains only hard-coded data.</p>
+      </article>
+
+      <article
+        data-task-id="D2"
+        data-phase="design-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="design"
+        data-depends-on="D1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>D2 - Evaluate HTML mocks</h3>
+        <p><strong>Goal:</strong> Review every mock from D1 against the criteria below. Fix any failure in the mock files, then re-run the evaluation. Repeat until every criterion passes for every screen.</p>
+        <p><strong>Inputs:</strong> D1 outputs (<code>./mocks/</code>), <code>./docs/idea.md</code></p>
+        <p><strong>Deliverable:</strong> revised, accepted mocks; evaluation notes appended to <code>./docs/evaluations/D2.md</code> with one section per pass listing checks performed, failures found, and fixes applied.</p>
+
+        <p><strong>Evaluation criteria</strong> (every screen must pass every check; this is the entire D2 rubric):</p>
+        <ol>
+          <li><strong>Material 3 adherence.</strong> Every page visibly applies Material 3 — color roles (primary / secondary / surface / on-surface), type scale (display, headline, title, body, label), elevation tiers, shape scale (rounded corners), and component anatomy (FAB, app bar, navigation rail/bar, cards, chips, dialogs, snackbars). A page that looks like generic Bootstrap or unstyled HTML fails.</li>
+          <li><strong>Radically simple.</strong> The design implements the idea with the smallest set of components and screens that still gives a great user experience. No speculative features, no decorative chrome, no unused navigation entries. If a screen, control, or section does not directly serve the idea, remove it.</li>
+          <li><strong>Great user experience.</strong> Primary action on each screen is obvious, reachable in one tap on mobile, and visually dominant. Secondary actions are present but de-emphasized. Empty states, loading states (static skeleton is fine), and error states are mocked where the flow can encounter them.</li>
+          <li><strong>Responsive.</strong> Open each mock at 360px (mobile), 768px (tablet), and 1440px (desktop) viewport widths. Layout must reflow appropriately at each — navigation collapses to a bottom bar or drawer on mobile, content reflows from multi-column to single-column, no horizontal scroll, no clipped content, no overlapping elements.</li>
+          <li><strong>Static + hard-coded.</strong> View source or grep — confirm there is no <code>fetch(</code>, no <code>XMLHttpRequest</code>, no <code>localStorage</code>, no <code>sessionStorage</code>, no JSON file loading. All displayed data is literal in the markup.</li>
+          <li><strong>BEM naming.</strong> Class names follow Block__Element--Modifier. No utility-only classes from Tailwind/Bootstrap.</li>
+          <li><strong>Coverage vs. idea.</strong> Every primary user goal expressed in <code>./docs/idea.md</code> has at least one mocked screen. Every primary entity has at least a list and a detail/edit view mocked. Sign-in, sign-up, password reset, profile, and sign-out are present.</li>
+          <li><strong>Mobile-first appearance.</strong> The mobile layout is not just a squished desktop — controls are touch-sized (≥48dp), spacing is comfortable, type is legible.</li>
+          <li><strong>No build step.</strong> Each <code>.html</code> file opens via <code>file://</code> with full styling and navigation working. No console errors.</li>
+        </ol>
+
+        <p><strong>Per-pass loop</strong> (one full pass = required by <code>data-evaluation-passes="1"</code>; run additional passes if the first finds failures):</p>
+        <ol>
+          <li>Open each mock in a browser at 360 / 768 / 1440 widths. Note failures per criterion in <code>./docs/evaluations/D2.md</code> under a <code>## Pass N - findings</code> heading.</li>
+          <li>Fix every failure in the mock files.</li>
+          <li>If any fix was applied, run another pass. Stop only when a full pass produces zero findings.</li>
+        </ol>
+
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings across every screen and every criterion, and the final clean pass is recorded in <code>./docs/evaluations/D2.md</code>.</p>
+      </article>
+
+      <!-- ========== Requirements ========== -->
+      <article
+        data-task-id="R1"
+        data-phase="requirements"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="requirements"
+        data-depends-on="D2"
+        data-skill="requirements"
+        data-evaluation-passes="0"
+      >
+        <h3>R1 - Create requirements</h3>
+        <p><strong>Goal:</strong> Translate idea + accepted mocks into product requirements.</p>
+        <p><strong>Inputs:</strong> idea.md, accepted mocks</p>
+        <p><strong>Deliverable:</strong> requirements document in the repo.</p>
+        <p><strong>Done when:</strong> scope, features, constraints, and acceptance criteria are written.</p>
+      </article>
+
+      <article
+        data-task-id="R2"
+        data-phase="requirements-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="requirements"
+        data-depends-on="R1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>R2 - Evaluate requirements</h3>
+        <p><strong>Goal:</strong> Review and refine requirements until accepted.</p>
+        <p><strong>Inputs:</strong> R1 outputs, idea.md, mocks</p>
+        <p><strong>Deliverable:</strong> approved requirements document.</p>
+        <p><strong>Done when:</strong> all blocking findings resolved.</p>
+      </article>
+
+      <!-- ========== MVPs (run in parallel) ========== -->
+      <article
+        data-task-id="MB1"
+        data-phase="mvp-backend"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="mvp-backend"
+        data-depends-on="R2"
+        data-skill="backend"
+        data-evaluation-passes="0"
+      >
+        <h3>MB1 - Create backend MVP</h3>
+        <p><strong>Goal:</strong> Build a thin backend MVP that proves the architectural pattern. The MVP MUST adhere to every relevant rule in <a href="#implementation-guidance">Implementation Guidance</a> — specifically the General, Backend (.NET), Validation, and Authentication sections. The MVP is the reference everything else is built against, so getting the shape right is the entire point.</p>
+        <p><strong>Inputs:</strong> approved requirements</p>
+        <p><strong>Deliverable:</strong> running backend MVP under <code>backend/</code> with: Clean Architecture project split, MediatR wired up, one sample command + handler + FluentValidation validator, one sample query + handler, <code>IAppDbContext</code> + EF Core <code>DbContext</code>, one ASP.NET Core controller calling MediatR, JWT auth middleware (local username + password flow at minimum), one-type-per-file enforced. Also commit a <code>backend/README.md</code> documenting the run command and the layered pattern.</p>
+        <p><strong>Parallel:</strong> Runs in parallel with MF1.</p>
+        <p><strong>No stubs.</strong> The sample slice must be real (e.g., a working entity with create + read), not a placeholder. Optional integrations explicitly deferred (e.g., transactional email) may use a logging no-op service named accordingly.</p>
+        <p><strong>Done when:</strong> <code>dotnet build</code> is clean, the MVP runs from a documented command, the sample slice round-trips through HTTP → MediatR → EF → SQL Server, and every rule from the relevant guidance sections is satisfied.</p>
+      </article>
+
+      <article
+        data-task-id="MB2"
+        data-phase="mvp-backend-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="mvp-backend"
+        data-depends-on="MB1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>MB2 - Evaluate backend MVP</h3>
+        <p><strong>Goal:</strong> Run the <a href="#implementation-guidance">Implementation Evaluation Rubric</a> against the MB1 backend MVP, scoped to the Backend, Validation, Authentication, Testing, and General sections. Apply the fix-on-find rule: any failure is fixed in MB1 code, committed, pushed, then re-evaluated until a clean pass.</p>
+        <p><strong>Inputs:</strong> MB1 outputs, approved requirements</p>
+        <p><strong>Deliverable:</strong> accepted MVP and pattern reference; evaluation findings recorded under <code>./docs/evaluations/MB2.md</code> with a section per pass.</p>
+        <p><strong>Explicit checks:</strong> Clean Architecture layering, MediatR CQS, no repository/UoW classes, <code>IAppDbContext</code> in handlers, FluentValidation per command, JWT validation on every protected endpoint, password hashing with Argon2id/PBKDF2/bcrypt, one-type-per-file across the entire backend, no <code>TODO</code>/<code>NotImplementedException</code>/empty bodies, radically simple, sample slice fully implemented end to end.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <article
+        data-task-id="MF1"
+        data-phase="mvp-frontend"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="mvp-frontend"
+        data-depends-on="R2"
+        data-skill="frontend"
+        data-evaluation-passes="0"
+      >
+        <h3>MF1 - Create frontend MVP</h3>
+        <p><strong>Goal:</strong> Build a thin frontend MVP that proves the UI architecture. The MVP MUST adhere to every relevant rule in <a href="#implementation-guidance">Implementation Guidance</a> — specifically the General, Frontend (Angular), Library Structure, Authentication (frontend side), and Testing sections.</p>
+        <p><strong>Inputs:</strong> approved requirements, accepted mocks (<code>./mocks/</code>)</p>
+        <p><strong>Deliverable:</strong> running frontend MVP under <code>frontend/</code> as an Angular workspace with: <code>api</code>, <code>components</code>, <code>domain</code> libraries plus a main app following the prescribed dependency direction; Angular Material (Material 3) wired in with design tokens; one sample <code>foo.service.ts</code> + <code>foo.service.contract.ts</code> in <code>api</code> demonstrating interface-driven service consumption; one reusable component in <code>components</code>; one domain component in <code>domain</code> consuming the api service via its contract; routing scaffolded for sign-in + one authenticated screen; BEM class names throughout; one-type-per-file (separate <code>.html</code>/<code>.scss</code>/<code>.ts</code>) enforced; one Playwright POM acceptance test for the sample flow. Also commit a <code>frontend/README.md</code> documenting the run command and the library structure.</p>
+        <p><strong>Parallel:</strong> Runs in parallel with MB1.</p>
+        <p><strong>No stubs.</strong> The sample flow must really call the backend MVP's sample endpoint and render real data from it. Single-file components, inline templates, or any deviation from the per-file split fails the MVP.</p>
+        <p><strong>Done when:</strong> <code>ng build</code> is clean, the MVP runs from a documented command, the sample flow renders backend data on screens that match the Material 3 mocks at 360 / 768 / 1440, the Playwright test passes, and every rule from the relevant guidance sections is satisfied.</p>
+      </article>
+
+      <article
+        data-task-id="MF2"
+        data-phase="mvp-frontend-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="mvp-frontend"
+        data-depends-on="MF1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>MF2 - Evaluate frontend MVP</h3>
+        <p><strong>Goal:</strong> Run the <a href="#implementation-guidance">Implementation Evaluation Rubric</a> against the MF1 frontend MVP, scoped to the Frontend, Library Structure, Authentication (frontend side), Testing, and General sections. Apply the fix-on-find rule.</p>
+        <p><strong>Inputs:</strong> MF1 outputs, approved requirements, accepted mocks</p>
+        <p><strong>Deliverable:</strong> accepted MVP and pattern reference; evaluation findings recorded under <code>./docs/evaluations/MF2.md</code> with a section per pass.</p>
+        <p><strong>Explicit checks:</strong> three libraries (<code>api</code>, <code>components</code>, <code>domain</code>) plus app with the correct dependency direction (components depends on nothing, domain depends on api, app depends on all three); every service has a <code>*.service.contract.ts</code> with interface + injection token; Angular Material 3 components used; design tokens defined; BEM class naming; one-type-per-file with separate <code>.html</code>/<code>.scss</code>/<code>.ts</code>; Playwright POM acceptance test exists, was authored before the implementation, currently passes; visual appearance matches the accepted mocks at 360 / 768 / 1440; no <code>TODO</code>/<code>console.log</code>-debug/empty methods; radically simple.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <!-- ========== Backend Implementation ========== -->
+      <article
+        data-task-id="BP1"
+        data-phase="backend-plan"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="backend-impl"
+        data-depends-on="MB2"
+        data-skill="backend-architect"
+        data-evaluation-passes="0"
+      >
+        <h3>BP1 - Plan backend implementation</h3>
+        <p><strong>Goal:</strong> Plan the full backend implementation grounded in approved requirements and the MB1 MVP patterns. The plan MUST be expressed in terms of the Backend, Validation, Authentication, and General sections of <a href="#implementation-guidance">Implementation Guidance</a> — every module, command, query, validator, controller, entity, migration, and auth concern named in the plan must map directly to those rules.</p>
+        <p><strong>Inputs:</strong> approved requirements, accepted backend MVP</p>
+        <p><strong>Deliverable:</strong> implementation plan under <code>./docs/plans/backend.md</code> covering: module / project layout (Api / Application / Domain / Infrastructure), entities and DbContext shape, command + query inventory grouped by feature, validator inventory, controller surface, auth flows (PKCE OIDC + local username/password, RBAC roles), migration sequencing, deferred-integration list (with the no-op service plan for each).</p>
+        <p><strong>Done when:</strong> every requirement appears in the plan, every plan item maps to a guidance rule, no plan item conflicts with the guidance.</p>
+      </article>
+
+      <article
+        data-task-id="BP2"
+        data-phase="backend-plan-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="backend-impl"
+        data-depends-on="BP1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>BP2 - Evaluate backend plan</h3>
+        <p><strong>Goal:</strong> Verify the BP1 plan covers every requirement and complies with the Backend, Validation, Authentication, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>. Fix any gap or conflict by editing the plan, then re-evaluate. Findings under <code>./docs/evaluations/BP2.md</code>.</p>
+        <p><strong>Inputs:</strong> BP1 outputs, approved requirements, accepted backend MVP</p>
+        <p><strong>Deliverable:</strong> approved backend plan with zero gaps and zero conflicts.</p>
+        <p><strong>Explicit checks:</strong> Clean Architecture layering planned; CQS via MediatR planned; no repository or unit-of-work in the plan; FluentValidation per command planned; <code>IAppDbContext</code> abstraction planned; auth flows planned (both OIDC PKCE and local) with hashing + JWT validation + RBAC; SQL Server; one-type-per-file convention assumed; deferred integrations explicitly enumerated as no-op logging services. No speculative abstractions in the plan.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <article
+        data-task-id="BT1"
+        data-phase="backend-tasks"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="backend-impl"
+        data-depends-on="BP2"
+        data-skill="backend-architect"
+        data-evaluation-passes="0"
+      >
+        <h3>BT1 - Create vertically sliced backend tasks</h3>
+        <p><strong>Goal:</strong> Break the approved backend plan into small, vertically sliced tasks. Every task ships an end-to-end slice (controller → command/query handler with FluentValidation → <code>IAppDbContext</code> → migration if needed → tests) implemented per the Backend, Validation, Authentication, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>.</p>
+        <p><strong>Inputs:</strong> approved backend plan</p>
+        <p><strong>Deliverable:</strong> task list under <code>./docs/plans/backend-tasks.md</code>. Each task entry includes: ID, title, the requirement(s) it implements, the slice contents (controller endpoint, command/query, validator, entity changes, migration, acceptance test), and which guidance rules apply.</p>
+        <p><strong>Done when:</strong> tasks cover the entire plan, each is small enough to finish (implement + eval) in a small number of loop iterations, and no task crosses a layer boundary inconsistently with the guidance.</p>
+      </article>
+
+      <article
+        data-task-id="BT2"
+        data-phase="backend-tasks-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="backend-impl"
+        data-depends-on="BT1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>BT2 - Evaluate backend tasks</h3>
+        <p><strong>Goal:</strong> Verify the BT1 task list against the approved plan and the Backend, Validation, Authentication, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>. Fix-on-find: amend the task list, re-evaluate. Findings under <code>./docs/evaluations/BT2.md</code>.</p>
+        <p><strong>Inputs:</strong> BT1 outputs, approved backend plan</p>
+        <p><strong>Deliverable:</strong> approved backend task list.</p>
+        <p><strong>Explicit checks:</strong> every task is a true vertical slice; no task is "scaffolding only" with no end-to-end value; no task introduces a repository, unit-of-work, or other forbidden abstraction; every task names its acceptance test; every task names which guidance rules it must satisfy; sizing is small enough that one task = a few loop iterations.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <article
+        data-task-id="BI1"
+        data-phase="backend-implementation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="backend-impl"
+        data-depends-on="BT2"
+        data-skill="backend"
+        data-evaluation-passes="0"
+      >
+        <h3>BI1 - Implement each backend task with ATDD</h3>
+        <p><strong>Goal:</strong> For every approved backend task: write the acceptance test first (ATDD), implement against the Backend, Validation, Authentication, and General sections of <a href="#implementation-guidance">Implementation Guidance</a> until the test is green, evaluate the implementation against the <a href="#implementation-guidance">Implementation Evaluation Rubric</a>, fix any finding, then move on.</p>
+        <p><strong>Inputs:</strong> approved backend task list, accepted backend MVP</p>
+        <p><strong>Deliverable:</strong> per slice: passing acceptance test, controller + command/query + FluentValidation validator + handler depending on <code>IAppDbContext</code> + EF migration where needed; one-type-per-file; no stubs; no repository/UoW; entire requirement implemented end to end. Evaluation note appended to <code>./docs/evaluations/BI1-&lt;slice-id&gt;.md</code>.</p>
+        <p><strong>Per-slice loop:</strong>
+          <ol>
+            <li>Write acceptance test for the slice. Commit + push.</li>
+            <li>Implement until the test passes, following every applicable guidance rule. Commit + push.</li>
+            <li>Run the Implementation Evaluation Rubric scoped to backend. If any finding, fix in the implementation, commit + push, re-evaluate. Repeat until a clean pass.</li>
+            <li>Mark the slice done in <code>./docs/plans/backend-tasks.md</code>. Commit + push.</li>
+          </ol>
+        </p>
+        <p><strong>No stubs.</strong> A slice is not done if it contains <code>TODO</code>, <code>NotImplementedException</code>, empty handler bodies, or returned hard-coded sentinel values. The only acceptable deferred work is an explicitly-enumerated optional integration replaced by a logging no-op service named accordingly and noted in the deliverable evaluation file.</p>
+        <p><strong>Done when:</strong> every backend task is implemented, has a passing acceptance test, has a clean evaluation pass on the rubric, and is marked done in the task list.</p>
+      </article>
+
+      <!-- ========== Frontend Implementation ========== -->
+      <article
+        data-task-id="FP1"
+        data-phase="frontend-plan"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="frontend-impl"
+        data-depends-on="MF2"
+        data-skill="frontend-architect"
+        data-evaluation-passes="0"
+      >
+        <h3>FP1 - Plan frontend implementation</h3>
+        <p><strong>Goal:</strong> Plan the full frontend implementation grounded in approved requirements, accepted mocks, and the MF1 MVP patterns. The plan MUST be expressed in terms of the Frontend, Library Structure, Authentication (frontend side), Testing, and General sections of <a href="#implementation-guidance">Implementation Guidance</a> — every route, component, service, and library boundary named in the plan must map directly to those rules.</p>
+        <p><strong>Inputs:</strong> approved requirements, accepted frontend MVP, accepted mocks</p>
+        <p><strong>Deliverable:</strong> implementation plan under <code>./docs/plans/frontend.md</code> covering: workspace layout (apps + libraries with the correct dependency direction), per-feature route list, component inventory split across <code>components</code> vs <code>domain</code>, service inventory in <code>api</code> with each <code>*.service.contract.ts</code> named, design-token list, auth integration (PKCE OIDC + local sign-in flows), Playwright POM test inventory, deferred-integration list.</p>
+        <p><strong>Done when:</strong> every requirement and every mock screen appears in the plan, every plan item maps to a guidance rule, no plan item conflicts with the guidance.</p>
+      </article>
+
+      <article
+        data-task-id="FP2"
+        data-phase="frontend-plan-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="frontend-impl"
+        data-depends-on="FP1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>FP2 - Evaluate frontend plan</h3>
+        <p><strong>Goal:</strong> Verify the FP1 plan covers every requirement and every mock screen and complies with the Frontend, Library Structure, Authentication (frontend side), Testing, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>. Fix-on-find: amend the plan, re-evaluate. Findings under <code>./docs/evaluations/FP2.md</code>.</p>
+        <p><strong>Inputs:</strong> FP1 outputs, approved requirements, accepted mocks</p>
+        <p><strong>Deliverable:</strong> approved frontend plan with zero gaps and zero conflicts.</p>
+        <p><strong>Explicit checks:</strong> three libraries (<code>api</code>, <code>components</code>, <code>domain</code>) plus app planned with correct dependency direction; every planned service has a <code>*.service.contract.ts</code>; Angular Material 3 components specified; design tokens specified; BEM naming assumed; per-file split assumed; Playwright POM tests planned for important flows; both auth flows planned; mock-to-screen mapping is exhaustive.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <article
+        data-task-id="FT1"
+        data-phase="frontend-tasks"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="frontend-impl"
+        data-depends-on="FP2"
+        data-skill="frontend-architect"
+        data-evaluation-passes="0"
+      >
+        <h3>FT1 - Create vertically sliced frontend tasks</h3>
+        <p><strong>Goal:</strong> Break the approved frontend plan into small, vertically sliced tasks. Every task ships an end-to-end UI slice (route → component(s) in <code>components</code>/<code>domain</code> → service in <code>api</code> with its <code>*.service.contract.ts</code> → backend integration → Playwright POM test) implemented per the Frontend, Library Structure, Authentication, Testing, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>.</p>
+        <p><strong>Inputs:</strong> approved frontend plan, accepted mocks</p>
+        <p><strong>Deliverable:</strong> task list under <code>./docs/plans/frontend-tasks.md</code>. Each task entry includes: ID, title, the requirement(s) and mock(s) it implements, the slice contents (route, components, service + contract, integration), the Playwright POM test name, and which guidance rules apply.</p>
+        <p><strong>Done when:</strong> tasks cover the entire plan, each is small enough to finish (implement + eval) in a small number of loop iterations, and no task crosses library boundaries inconsistently with the guidance.</p>
+      </article>
+
+      <article
+        data-task-id="FT2"
+        data-phase="frontend-tasks-evaluation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="frontend-impl"
+        data-depends-on="FT1"
+        data-skill="evaluation"
+        data-evaluation-passes="1"
+      >
+        <h3>FT2 - Evaluate frontend tasks</h3>
+        <p><strong>Goal:</strong> Verify the FT1 task list against the approved plan and the Frontend, Library Structure, Authentication (frontend side), Testing, and General sections of <a href="#implementation-guidance">Implementation Guidance</a>. Fix-on-find: amend the task list, re-evaluate. Findings under <code>./docs/evaluations/FT2.md</code>.</p>
+        <p><strong>Inputs:</strong> FT1 outputs, approved frontend plan, accepted mocks</p>
+        <p><strong>Deliverable:</strong> approved frontend task list.</p>
+        <p><strong>Explicit checks:</strong> every task is a true vertical UI slice; no "scaffolding only" tasks; library boundaries are respected (a task in <code>components</code> never imports from <code>api</code>); every task names its Playwright POM acceptance test; every task names which guidance rules it must satisfy; sizing is small enough that one task = a few loop iterations.</p>
+        <p><strong>Done when:</strong> a full evaluation pass produces zero blocking findings.</p>
+      </article>
+
+      <article
+        data-task-id="FI1"
+        data-phase="frontend-implementation"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="frontend-impl"
+        data-depends-on="FT2"
+        data-skill="frontend"
+        data-evaluation-passes="0"
+      >
+        <h3>FI1 - Implement each frontend task with ATDD (Playwright POM)</h3>
+        <p><strong>Goal:</strong> For every approved frontend task: write the Playwright POM acceptance test first (ATDD), implement against the Frontend, Library Structure, Authentication (frontend side), Testing, and General sections of <a href="#implementation-guidance">Implementation Guidance</a> until the test is green, evaluate the implementation against the <a href="#implementation-guidance">Implementation Evaluation Rubric</a>, fix any finding, then move on.</p>
+        <p><strong>Inputs:</strong> approved frontend task list, accepted frontend MVP, accepted mocks</p>
+        <p><strong>Deliverable:</strong> per slice: passing Playwright POM acceptance test; route + components in the right libraries; service in <code>api</code> with its <code>*.service.contract.ts</code>; Material 3 visual fidelity to the corresponding mock; per-file split (<code>.html</code>/<code>.scss</code>/<code>.ts</code>); BEM CSS; design tokens used; mobile-first responsive; no stubs. Evaluation note appended to <code>./docs/evaluations/FI1-&lt;slice-id&gt;.md</code>.</p>
+        <p><strong>Per-slice loop:</strong>
+          <ol>
+            <li>Write Playwright POM acceptance test for the slice. Commit + push.</li>
+            <li>Implement until the test passes, following every applicable guidance rule. Commit + push.</li>
+            <li>Run the Implementation Evaluation Rubric scoped to frontend. If any finding, fix in the implementation, commit + push, re-evaluate. Repeat until a clean pass.</li>
+            <li>Verify the slice visually matches the mock at 360 / 768 / 1440 widths.</li>
+            <li>Mark the slice done in <code>./docs/plans/frontend-tasks.md</code>. Commit + push.</li>
+          </ol>
+        </p>
+        <p><strong>No stubs.</strong> A slice is not done if it contains <code>TODO</code>, debug <code>console.log</code>, empty methods, hard-coded fake responses, single-file components, inline templates, or any deviation from BEM / per-file / library-direction rules. Only explicitly-deferred optional integrations may be replaced by a logging no-op service named accordingly and noted in the evaluation file.</p>
+        <p><strong>Done when:</strong> every frontend task is implemented, has a passing Playwright POM test, has a clean evaluation pass on the rubric, visually matches its mock, and is marked done in the task list.</p>
+      </article>
+
+      <!-- ========== Deployment ========== -->
+      <article
+        data-task-id="DP1"
+        data-phase="deployment"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="deploy"
+        data-depends-on="BI1,FI1"
+        data-skill="devops"
+        data-evaluation-passes="0"
+      >
+        <h3>DP1 - Create Azure deployment workflow (cheapest plan)</h3>
+        <p><strong>Goal:</strong> Add a Git workflow that deploys the app to Azure on the cheapest viable plan, provisioned via the Azure CLI.</p>
+        <p><strong>Inputs:</strong> implemented backend and frontend</p>
+        <p><strong>Deliverable:</strong> CI/CD workflow file, Azure CLI provisioning script, and deployment docs.</p>
+        <p><strong>Done when:</strong> a push to the deploy branch provisions and deploys successfully.</p>
+      </article>
+
+      <!-- ========== Test Plan + Stabilization ========== -->
+      <article
+        data-task-id="TP1"
+        data-phase="test-plan"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="stabilize"
+        data-depends-on="DP1"
+        data-skill="qa"
+        data-evaluation-passes="0"
+      >
+        <h3>TP1 - Create test plan</h3>
+        <p><strong>Goal:</strong> Author a test plan covering happy paths, edge cases, and regressions.</p>
+        <p><strong>Inputs:</strong> requirements, implemented app</p>
+        <p><strong>Deliverable:</strong> test plan document in the repo.</p>
+        <p><strong>Done when:</strong> all requirements have at least one test scenario.</p>
+      </article>
+
+      <article
+        data-task-id="TP2"
+        data-phase="local-runtime"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="stabilize"
+        data-depends-on="TP1"
+        data-skill="devops"
+        data-evaluation-passes="0"
+      >
+        <h3>TP2 - Ensure app runs locally</h3>
+        <p><strong>Goal:</strong> Verify backend and frontend start cleanly on a fresh checkout.</p>
+        <p><strong>Inputs:</strong> repo</p>
+        <p><strong>Deliverable:</strong> documented local run command and a green smoke check.</p>
+        <p><strong>Done when:</strong> a fresh clone runs the app from a single command.</p>
+      </article>
+
+      <article
+        data-task-id="TP3"
+        data-phase="test-execution"
+        data-status="blocked"
+        data-owner=""
+        data-parallel-group="stabilize"
+        data-depends-on="TP2"
+        data-skill="qa"
+        data-evaluation-passes="5"
+      >
+        <h3>TP3 - Run test plan 5 times, log bugs, fix bugs</h3>
+        <p><strong>Goal:</strong> Execute the test plan five times. Each pass: log bugs to a markdown file in <code>./docs/bugs/</code>, then fix them before the next pass.</p>
+        <p><strong>Inputs:</strong> test plan, running app</p>
+        <p><strong>Deliverable:</strong> 5 dated bug logs under <code>./docs/bugs/</code> and fixes merged for each.</p>
+        <p><strong>Per-pass loop:</strong> run plan -> append bugs to <code>./docs/bugs/pass-N.md</code> -> fix -> rerun until pass N is clean -> proceed to pass N+1.</p>
+        <p><strong>Done when:</strong> pass 5 finishes with no new blocking bugs.</p>
+      </article>
+    </section>
+
+    <section id="parallelism">
+      <h2>Parallelism Map</h2>
+      <ul>
+        <li><strong>mvp-backend</strong> (MB1, MB2) runs in parallel with <strong>mvp-frontend</strong> (MF1, MF2) once R2 is done.</li>
+        <li><strong>backend-impl</strong> (BP1 -> BP2 -> BT1 -> BT2 -> BI1) runs in parallel with <strong>frontend-impl</strong> (FP1 -> FP2 -> FT1 -> FT2 -> FI1).</li>
+        <li>Within each implementation track, BI1 and FI1 iterate per task: implement (ATDD) -> evaluate -> next.</li>
+        <li>Deployment (DP1) waits for both BI1 and FI1.</li>
+      </ul>
+    </section>
+
+    <section id="decision-log">
+      <h2>Decision Log</h2>
+      <ul>
+        <li>Evaluation gates follow every produced artifact (mocks, requirements, MVPs, plans, task lists, implementations).</li>
+        <li>ATDD is mandatory for implementation tasks; Playwright Page Object Model is mandatory for frontend tasks.</li>
+        <li>MVPs exist to lock in patterns before scaling implementation.</li>
+        <li>Vertically sliced tasks are the unit of progress during implementation.</li>
+        <li>Azure deployment uses the cheapest viable plan provisioned via Azure CLI.</li>
+        <li>Test plan executes 5 full passes, with bugs tracked per-pass under <code>./docs/bugs/</code>.</li>
+      </ul>
+    </section>
+  </body>
+</html>

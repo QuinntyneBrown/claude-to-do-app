@@ -1,0 +1,2 @@
+- radically simple to app
+- to do has 2 states: Incomplete and Complete
