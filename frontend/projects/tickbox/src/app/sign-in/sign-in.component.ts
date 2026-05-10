@@ -41,7 +41,11 @@ export class SignInComponent {
   ) {}
 
   protected submit(): void {
-    if (this.submitting() || this.email.trim() === '' || this.password === '') {
+    if (this.submitting()) {
+      return;
+    }
+    if (this.email.trim() === '' || this.password === '') {
+      this.error.set('Enter your email and password.');
       return;
     }
     this.submitting.set(true);

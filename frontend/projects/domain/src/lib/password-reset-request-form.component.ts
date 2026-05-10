@@ -17,13 +17,19 @@ export class PasswordResetRequestFormComponent {
   protected email = '';
   protected readonly submitting = signal(false);
   protected readonly submitted = signal(false);
+  protected readonly error = signal<string | null>(null);
 
   constructor(@Inject(AUTH_SERVICE) private readonly authService: IAuthService) {}
 
   protected submit(): void {
-    if (this.submitting() || this.email.trim() === '') {
+    if (this.submitting()) {
       return;
     }
+    if (this.email.trim() === '') {
+      this.error.set('Enter your email.');
+      return;
+    }
+    this.error.set(null);
     this.submitting.set(true);
     this.authService.requestPasswordReset({ email: this.email.trim() }).subscribe({
       next: () => {
