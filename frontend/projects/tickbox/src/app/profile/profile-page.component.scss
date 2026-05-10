@@ -23,3 +23,10 @@
   color: var(--mat-sys-on-surface);
   margin: 0;
 }
+
+@media (max-width: 599px) {
+  .profile-page button[mat-stroked-button],
+  .profile-page button[mat-flat-button] {
+    min-height: 48px;
+  }
+}
