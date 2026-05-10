@@ -140,7 +140,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Api:** extend `CreateTodoRequest` DTO.
   - **Acceptance tests:** `Create_todo_with_notes_and_due_date_persists_and_writes_Created_activity`, `Create_todo_rejects_notes_over_limit_and_past_due_date`.
 
-### B-011 — Todo: get by id (with activity)
+### B-011 — Todo: get by id (with activity) — **done** (see `docs/evaluations/BI1-B011.md`)
 
 - **Implements:** REQ-TODO-4 (read leg), REQ-TODO-8 (read leg), REQ-NFR-5.
 - **Depends on:** B-010 (activity table exists).
