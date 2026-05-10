@@ -15,6 +15,7 @@ public sealed class AppDbContext : DbContext, IAppDbContext
     public DbSet<SignInAttempt> SignInAttempts => Set<SignInAttempt>();
     public DbSet<SecurityAuditEvent> SecurityAuditEvents => Set<SecurityAuditEvent>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,6 +78,16 @@ public sealed class AppDbContext : DbContext, IAppDbContext
         modelBuilder.Entity<RefreshToken>(b =>
         {
             b.ToTable("RefreshTokens");
+            b.HasKey(t => t.Id);
+            b.Property(t => t.TokenHash).IsRequired().HasMaxLength(128);
+            b.HasIndex(t => t.TokenHash).IsUnique();
+            b.HasIndex(t => t.UserId);
+            b.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(b =>
+        {
+            b.ToTable("PasswordResetTokens");
             b.HasKey(t => t.Id);
             b.Property(t => t.TokenHash).IsRequired().HasMaxLength(128);
             b.HasIndex(t => t.TokenHash).IsUnique();

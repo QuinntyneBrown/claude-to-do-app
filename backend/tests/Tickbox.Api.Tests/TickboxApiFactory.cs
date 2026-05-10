@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Tickbox.Application.Common;
 using Tickbox.Domain;
 using Tickbox.Infrastructure.Persistence;
 
@@ -37,6 +38,9 @@ public sealed class TickboxApiFactory : WebApplicationFactory<Program>
                 options.UseInMemoryDatabase(_databaseName);
                 options.ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
+
+            services.RemoveAll<IEmailService>();
+            services.AddSingleton<IEmailService, TestEmailService>();
         });
     }
 

@@ -64,7 +64,7 @@ Every task below MUST satisfy these guidance rules from the workflow's Implement
   - **Acceptance tests:** `Refresh_rotates_token_and_returns_new_access_jwt`, `Refresh_with_revoked_token_returns_401`, `Sign_out_revokes_caller_refresh_token_and_clears_cookie`.
 - **Specific guidance rules:** Auth §"JWTs validated on every request"; REQ-NFR-6.
 
-### B-004 — Password reset (request + complete) + `IEmailService` no-op
+### B-004 — Password reset (request + complete) + `IEmailService` no-op — **done** (see `docs/evaluations/BI1-B004.md`)
 
 - **Implements:** REQ-AUTH-4 AC1/AC2/AC3, REQ-AUTH-7, REQ-NFR-4.
 - **Depends on:** B-002 (audit), B-003 (revoke-all on reset).

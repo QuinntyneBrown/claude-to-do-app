@@ -48,11 +48,19 @@ public sealed class B004_PasswordResetTests : IClassFixture<TickboxApiFactory>
 
         using var scope = _factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var auditKinds = await db.SecurityAuditEvents.Select(e => e.Kind).ToListAsync();
+        var knownUser = await db.Users.SingleAsync(u => u.Email == knownEmail);
+
+        var auditKinds = await db.SecurityAuditEvents
+            .Where(e => e.UserId == knownUser.Id)
+            .Select(e => e.Kind)
+            .ToListAsync();
         auditKinds.Should().Contain(SecurityAuditKind.PasswordResetRequested);
 
-        var resetTokens = await db.PasswordResetTokens.ToListAsync();
-        resetTokens.Should().HaveCount(1, "the unknown email must not generate a reset row");
+        var knownResetTokens = await db.PasswordResetTokens.Where(t => t.UserId == knownUser.Id).ToListAsync();
+        knownResetTokens.Should().HaveCount(1, "exactly one reset row for the known user");
+
+        var unknownUsers = await db.Users.Where(u => u.Email == "unknown-account-2026@example.com").AnyAsync();
+        unknownUsers.Should().BeFalse("the unknown email must not have a user row");
     }
 
     [Fact]
