@@ -128,7 +128,7 @@ These are not repeated per task to avoid noise:
   - **Page object:** `ConfirmEmailChangePage.ts` (extending `ProfilePage` with the banner locator).
   - **Specs:** `profile-email-change.spec.ts` — `Request_email_change_renders_pending_banner`, `Cancel_email_change_clears_pending_banner`, `Confirm_email_change_with_valid_token_swaps_login_email`, `Confirm_email_change_with_expired_token_shows_inline_error_and_link_to_sign_in`.
 
-### F-009 — Delete account
+### F-009 — Delete account — **done** (see `docs/evaluations/FI1-F009.md`)
 
 - **Implements:** REQ-ACCT-4. Mock: `mocks/profile.html` (delete-account block).
 - **Depends on:** F-006 (`ConfirmDialogComponent`), F-007 (`ProfilePageComponent`, `IAccountService`).
